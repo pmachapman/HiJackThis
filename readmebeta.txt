@@ -1,4 +1,4 @@
-* Trend Micro HijackThis v2.0.5 Beta *
+* Trend Micro HijackThis v2.0.6 Beta *
 
 
 1. Description
