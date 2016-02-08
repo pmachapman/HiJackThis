@@ -2134,7 +2134,7 @@ Private Sub cmdN00bHJTQuickStart_Click()
     fraSubmit.Visible = True
     lstResults.Visible = True
     'If chkShowN00b.Value Then RegSave "ShowIntroFrame", "0"
-    'ShellExecute Me.hWnd, "open", "http://tomcoyote.org/hjt/#Top", "", "", 1
+    ShellExecute Me.hwnd, "open", "https://www.whatthetech.com/hijackthis/", "", "", 1
     Dim szQSUrl As String
     szQSUrl = Translate(360) & "?hjtver=" & CStr(App.Major) & "." & CStr(App.Minor) & "." & CStr(App.Revision)
     If True = IsOnline Then
