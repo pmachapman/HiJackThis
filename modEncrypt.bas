@@ -31,10 +31,10 @@ Public Function Crypt$(sMsg$, sPhrase$, Optional bEnOrDec As Boolean = False)
     Dim i%, j%, sChar$, iChar%, sOut$
     j = 1
     For i = 1 To Len(sMsg)
-        sChar = Mid(sMsg, i, 1)
+        sChar = Mid$(sMsg, i, 1)
         If bEnOrDec Then
             'encrypt
-            sChar = Chr(Asc(sChar) + Asc(Mid(sPhrase, j, 1)))
+            sChar = Chr(Asc(sChar) + Asc(Mid$(sPhrase, j, 1)))
             If Asc(sChar) > 126 Then
                 'make sure encrypted char is within
                 'normal range (space to ~)
@@ -42,7 +42,7 @@ Public Function Crypt$(sMsg$, sPhrase$, Optional bEnOrDec As Boolean = False)
             End If
         Else
             'decrypt
-            iChar = Asc(sChar) - Asc(Mid(sPhrase, j, 1))
+            iChar = Asc(sChar) - Asc(Mid$(sPhrase, j, 1))
             If iChar < 32 Then
                 'make sure decrypted char is within
                 'normal range (space to ~)

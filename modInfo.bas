@@ -4,8 +4,8 @@ Option Explicit
 Public Sub GetInfo(ByVal sItem$)
     Dim sMsg$
     On Error GoTo Error:
-    If InStr(sItem, vbCrLf) > 0 Then sItem = Left(sItem, InStr(sItem, vbCrLf) - 1)
-    Select Case Trim(Left(sItem, 3))
+    If InStr(sItem, vbCrLf) > 0 Then sItem = Left$(sItem, InStr(sItem, vbCrLf) - 1)
+    Select Case Trim$(Left$(sItem, 3))
         Case "R0"
             sMsg = "A Registry value that has been changed " & _
             "from the default, resulting in a changed " & _
@@ -65,9 +65,9 @@ Public Sub GetInfo(ByVal sItem$)
             "homepage URL." & vbCrLf & vbCrLf & _
             "(Action taken: Setting is restored to preset URL.)"
             
-            If Trim(Left(sItem, 3)) = "N2" Then sMsg = Replace(sMsg, "%SHITBROWSER%", "Netscape 6")
-            If Trim(Left(sItem, 3)) = "N3" Then sMsg = Replace(sMsg, "%SHITBROWSER%", "Netscape 7")
-            If Trim(Left(sItem, 3)) = "N4" Then sMsg = Replace(sMsg, "%SHITBROWSER%", "Mozilla")
+            If Trim$(Left$(sItem, 3)) = "N2" Then sMsg = Replace(sMsg, "%SHITBROWSER%", "Netscape 6")
+            If Trim$(Left$(sItem, 3)) = "N3" Then sMsg = Replace(sMsg, "%SHITBROWSER%", "Netscape 7")
+            If Trim$(Left$(sItem, 3)) = "N4" Then sMsg = Replace(sMsg, "%SHITBROWSER%", "Mozilla")
         Case "O1"
             sMsg = "A change in the 'Hosts' system file " & _
             "Windows uses to lookup domain names before " & _
@@ -336,7 +336,7 @@ Public Sub GetInfo(ByVal sItem$)
         Case Else
             Exit Sub
     End Select
-    sMsg = "Detailed information on item " & Trim(Left(sItem, 3)) & ":" & vbCrLf & vbCrLf & sMsg
+    sMsg = "Detailed information on item " & Trim$(Left$(sItem, 3)) & ":" & vbCrLf & vbCrLf & sMsg
     MsgBox sItem & vbCrLf & vbCrLf & sMsg, vbInformation
     Exit Sub
     

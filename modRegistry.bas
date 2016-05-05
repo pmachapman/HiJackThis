@@ -69,7 +69,7 @@ Public Function RegGetString$(lHive&, sKey$, sValue$)
     RegCloseKey hKey
     'with help from 'Adult' in Japan
     sData = StrConv(uData, vbUnicode)
-    sData = Left(sData, InStr(sData, Chr(0)) - 1)
+    sData = Left$(sData, InStr(sData, Chr(0)) - 1)
     'sData = ""
     'For i = 0 To lDataLen
     '    If uData(i) = 0 Then Exit For
@@ -167,7 +167,7 @@ Public Function RegKeyHasSubKeys(lHive&, sKey$) As Boolean
     Dim hKey&, sDummy$
     RegKeyHasSubKeys = False
     If RegOpenKeyEx(lHive, sKey, 0, KEY_ENUMERATE_SUB_KEYS, hKey) = 0 Then
-        sDummy = String(255, 0)
+        sDummy = String$(255, 0)
         If RegEnumKeyEx(hKey, 0, sDummy, 255, 0, vbNullString, ByVal 0, ByVal 0) = 0 Then
             RegKeyHasSubKeys = True
         End If
@@ -181,18 +181,18 @@ Public Sub RegDelSubKeys(lHive&, sKey$)
     On Error GoTo Error:
     ReDim sSubKeys(0)
     If RegOpenKeyEx(lHive, sKey, 0, KEY_ENUMERATE_SUB_KEYS, hKey) = 0 Then
-        sName = String(255, 0)
+        sName = String$(255, 0)
         If RegEnumKeyEx(hKey, i, sName, 255, 0, vbNullString, ByVal 0, ByVal 0) <> 0 Then
             'no subkeys
             RegCloseKey hKey
             Exit Sub
         End If
         Do
-            sName = Left(sName, InStr(sName, Chr(0)) - 1)
+            sName = Left$(sName, InStr(sName, Chr(0)) - 1)
             ReDim Preserve sSubKeys(UBound(sSubKeys) + 1)
             sSubKeys(UBound(sSubKeys)) = sName
             
-            sName = String(255, 0)
+            sName = String$(255, 0)
             i = i + 1
         Loop Until RegEnumKeyEx(hKey, i, sName, 255, 0, vbNullString, ByVal 0, ByVal 0) <> 0
         RegCloseKey hKey
@@ -214,9 +214,9 @@ End Sub
 Public Function RegGetFirstSubKey$(lHive&, sKey$)
     Dim hKey&, sName$
     If RegOpenKeyEx(lHive, sKey, 0, KEY_ENUMERATE_SUB_KEYS, hKey) = 0 Then
-        sName = String(255, 0)
+        sName = String$(255, 0)
         If RegEnumKeyEx(hKey, 0, sName, 255, 0, vbNullString, 0, ByVal 0) = 0 Then
-            RegGetFirstSubKey = Left(sName, InStr(sName, Chr(0)) - 1)
+            RegGetFirstSubKey = Left$(sName, InStr(sName, Chr(0)) - 1)
         Else
             RegGetFirstSubKey = vbNullString
         End If
@@ -290,9 +290,9 @@ Public Function GetFirstSubKey$(lHive&, sKey$)
         Exit Function
     End If
     
-    sName = String(255, 0)
+    sName = String$(255, 0)
     If RegEnumKeyEx(hKey, 0, sName, 255, 0, vbNullString, 0, ByVal 0) = 0 Then
-        sName = Left(sName, InStr(sName, Chr(0)) - 1)
+        sName = Left$(sName, InStr(sName, Chr(0)) - 1)
         GetFirstSubKey = sName
     End If
     RegCloseKey hKey
@@ -301,7 +301,7 @@ End Function
 Public Function RegKeyHasValues(lHive&, sKey$) As Boolean
     Dim hKey&, sName$, uData() As Byte
     If RegOpenKeyEx(lHive, sKey, 0, KEY_QUERY_VALUE, hKey) = 0 Then
-        sName = String(lEnumBufSize, 0)
+        sName = String$(lEnumBufSize, 0)
         ReDim uData(lEnumBufSize)
         If RegEnumValue(hKey, 0, sName, Len(sName), 0, ByVal 0, uData(0), UBound(uData)) = 0 Then
             RegKeyHasValues = True
@@ -314,14 +314,14 @@ Public Function RegKeyHasValues(lHive&, sKey$) As Boolean
     End If
 End Function
 
-Public Function RegEnumSubkeys$(lHive, sKey$)
+Public Function RegEnumSubkeys$(lHive As Long, sKey$)
     Dim hKey&, i&, sName$, sDummy$
     If RegOpenKeyEx(lHive, sKey, 0, KEY_ENUMERATE_SUB_KEYS, hKey) <> 0 Then
         'key doesn't exist
         Exit Function
     End If
     
-    sName = String(260, 0)
+    sName = String$(260, 0)
     If RegEnumKeyEx(hKey, 0, sName, 260, 0, vbNullString, 0, ByVal 0) <> 0 Then
         'key doesn't have subkeys
         RegCloseKey hKey
@@ -329,16 +329,16 @@ Public Function RegEnumSubkeys$(lHive, sKey$)
     End If
     
     Do
-        sName = Left(sName, InStr(sName, Chr(0)) - 1)
+        sName = Left$(sName, InStr(sName, Chr(0)) - 1)
         
         sDummy = sDummy & sName & "|"
         
-        sName = String(260, 0)
+        sName = String$(260, 0)
         i = i + 1
     Loop Until RegEnumKeyEx(hKey, i, sName, 260, 0, vbNullString, 0, ByVal 0) <> 0
     RegCloseKey hKey
     
-    RegEnumSubkeys = Left(sDummy, Len(sDummy) - 1)
+    RegEnumSubkeys = Left$(sDummy, Len(sDummy) - 1)
 End Function
 
 Public Sub RegSetExpandStringVal(lHive&, sKey$, sValue$, sData$)
@@ -351,7 +351,7 @@ Public Sub RegSetExpandStringVal(lHive&, sKey$, sValue$, sData$)
 End Sub
 
 Public Function IniGetString$(sFile$, sSection$, sValue$)
-    Dim sIniFile$, i%, iSect%, vContents As Variant, sData$, iAttr%
+    Dim sIniFile$, i%, iSect%, vContents() As String, sData$, iAttr%
     On Error GoTo Error:
     If Not FileExists(sFile) Then
         If FileExists(sWinSysDir & "\" & sFile) Then
@@ -381,7 +381,7 @@ Public Function IniGetString$(sFile$, sSection$, sValue$)
     If UBound(vContents) = -1 Then Exit Function 'file is empty
     
     For i = 0 To UBound(vContents)
-        If Trim(vContents(i)) <> vbNullString Then
+        If Trim$(vContents(i)) <> vbNullString Then
             If InStr(1, vContents(i), "[" & sSection & "]", vbTextCompare) = 1 Then
                 'found the correct section
                 iSect = i
@@ -396,7 +396,7 @@ Public Function IniGetString$(sFile$, sSection$, sValue$)
         
         If InStr(1, vContents(i), sValue & "=", vbTextCompare) = 1 Then
             'found the value!
-            IniGetString = Mid(vContents(i), InStr(vContents(i), "=") + 1)
+            IniGetString = Mid$(vContents(i), InStr(vContents(i), "=") + 1)
             Exit Function
         End If
     Next i
@@ -408,7 +408,7 @@ Error:
 End Function
 
 Public Sub IniSetString(sFile$, sSection$, sValue$, sData$)
-    Dim sIniFile$, i%, iSect%, vContents As Variant, sNewData$, iAttr%
+    Dim sIniFile$, i%, iSect%, vContents() As String, sNewData$, iAttr%
     On Error GoTo Error:
     If Not FileExists(sFile) Then
         If FileExists(sWinSysDir & "\" & sFile) Then
@@ -442,7 +442,7 @@ Public Sub IniSetString(sFile$, sSection$, sValue$, sData$)
     If UBound(vContents) = -1 Then Exit Sub 'file is empty
     
     For i = 0 To UBound(vContents)
-        If Trim(vContents(i)) <> vbNullString Then
+        If Trim$(vContents(i)) <> vbNullString Then
             If InStr(1, vContents(i), "[" & sSection & "]", vbTextCompare) = 1 Then
                 'found the correct section
                 iSect = i
@@ -457,7 +457,7 @@ Public Sub IniSetString(sFile$, sSection$, sValue$, sData$)
         
         If InStr(1, vContents(i), sValue & "=", vbTextCompare) = 1 Then
             'found the value!
-            sNewData = Left(vContents(i), InStr(vContents(i), "=")) & sData
+            sNewData = Left$(vContents(i), InStr(vContents(i), "=")) & sData
             vContents(i) = sNewData
             'input new data, replace file
             SetAttr sIniFile, vbNormal
@@ -483,8 +483,8 @@ Public Sub CreateUninstallKey(bCreate As Boolean)
                    "HijackThis " & App.Major & "." & App.Minor & "." & App.Revision Then
             RegCreateKey HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis"
             RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis", "DisplayName", "HijackThis " & App.Major & "." & App.Minor & "." & App.Revision
-            RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis", "UninstallString", """" & App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "HijackThis.exe"" /uninstall"
-            RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis", "DisplayIcon", App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "HijackThis.exe"
+            RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis", "UninstallString", """" & App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "HijackThis.exe"" /uninstall"
+            RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis", "DisplayIcon", App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "HijackThis.exe"
             RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis", "DisplayVersion", App.Major & "." & App.Minor & "." & App.Revision
             RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis", "Publisher", "TrendMicro"
             'RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Uninstall\HijackThis", "URLInfoAbout", "http://www.spywareinfo.com/~merijn/"

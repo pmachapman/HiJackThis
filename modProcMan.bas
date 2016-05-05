@@ -1,23 +1,23 @@
 Attribute VB_Name = "modProcMan"
 Option Explicit
-Public Declare Function CreateToolhelpSnapshot Lib "Kernel32" Alias "CreateToolhelp32Snapshot" (ByVal lFlags As Long, ByVal lProcessID As Long) As Long
-Public Declare Function ProcessFirst Lib "Kernel32" Alias "Process32First" (ByVal hSnapshot As Long, uProcess As PROCESSENTRY32) As Long
-Public Declare Function ProcessNext Lib "Kernel32" Alias "Process32Next" (ByVal hSnapshot As Long, uProcess As PROCESSENTRY32) As Long
-Public Declare Function Module32First Lib "Kernel32" (ByVal hSnapshot As Long, uProcess As MODULEENTRY32) As Long
-Public Declare Function Module32Next Lib "Kernel32" (ByVal hSnapshot As Long, uProcess As MODULEENTRY32) As Long
-Private Declare Function Thread32First Lib "Kernel32" (ByVal hSnapshot As Long, uThread As THREADENTRY32) As Long
-Private Declare Function Thread32Next Lib "Kernel32" (ByVal hSnapshot As Long, ByRef ThreadEntry As THREADENTRY32) As Long
-Public Declare Function TerminateProcess Lib "Kernel32" (ByVal hProcess As Long, ByVal uExitCode As Long) As Long
-Public Declare Function CloseHandle Lib "Kernel32" (ByVal hObject As Long) As Long
+Public Declare Function CreateToolhelpSnapshot Lib "kernel32" Alias "CreateToolhelp32Snapshot" (ByVal lFlags As Long, ByVal lProcessID As Long) As Long
+Public Declare Function ProcessFirst Lib "kernel32" Alias "Process32First" (ByVal hSnapshot As Long, uProcess As PROCESSENTRY32) As Long
+Public Declare Function ProcessNext Lib "kernel32" Alias "Process32Next" (ByVal hSnapshot As Long, uProcess As PROCESSENTRY32) As Long
+Public Declare Function Module32First Lib "kernel32" (ByVal hSnapshot As Long, uProcess As MODULEENTRY32) As Long
+Public Declare Function Module32Next Lib "kernel32" (ByVal hSnapshot As Long, uProcess As MODULEENTRY32) As Long
+Private Declare Function Thread32First Lib "kernel32" (ByVal hSnapshot As Long, uThread As THREADENTRY32) As Long
+Private Declare Function Thread32Next Lib "kernel32" (ByVal hSnapshot As Long, ByRef ThreadEntry As THREADENTRY32) As Long
+Public Declare Function TerminateProcess Lib "kernel32" (ByVal hProcess As Long, ByVal uExitCode As Long) As Long
+Public Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As Long
 
-Private Declare Function SuspendThread Lib "Kernel32" (ByVal hThread As Long) As Long
-Private Declare Function ResumeThread Lib "Kernel32" (ByVal hThread As Long) As Long
-Private Declare Function OpenThread Lib "Kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Boolean, ByVal dwThreadId As Long) As Long
-Private Declare Function GetCurrentProcessId Lib "Kernel32" () As Long
+Private Declare Function SuspendThread Lib "kernel32" (ByVal hThread As Long) As Long
+Private Declare Function ResumeThread Lib "kernel32" (ByVal hThread As Long) As Long
+Private Declare Function OpenThread Lib "kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Boolean, ByVal dwThreadId As Long) As Long
+Private Declare Function GetCurrentProcessId Lib "kernel32" () As Long
 
 Public Declare Function EnumProcesses Lib "PSAPI.DLL" (ByRef lpidProcess As Long, ByVal cb As Long, ByRef cbNeeded As Long) As Long
 Public Declare Function GetModuleFileNameExA Lib "PSAPI.DLL" (ByVal hProcess As Long, ByVal hModule As Long, ByVal ModuleName As String, ByVal nSize As Long) As Long
-Public Declare Function OpenProcess Lib "Kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Long, ByVal dwProcessId As Long) As Long
+Public Declare Function OpenProcess Lib "kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Long, ByVal dwProcessId As Long) As Long
 Public Declare Function EnumProcessModules Lib "PSAPI.DLL" (ByVal hProcess As Long, ByRef lphModule As Long, ByVal cb As Long, ByRef cbNeeded As Long) As Long
 
 Public Declare Function SHRunDialog Lib "shell32" Alias "#61" (ByVal hOwner As Long, ByVal Unknown1 As Long, ByVal Unknown2 As Long, ByVal szTitle As String, ByVal szPrompt As String, ByVal uFlags As Long) As Long
@@ -25,8 +25,8 @@ Public Declare Function SHRunDialog Lib "shell32" Alias "#61" (ByVal hOwner As L
 Private Declare Function GetFileVersionInfo Lib "version.dll" Alias "GetFileVersionInfoA" (ByVal lptstrFilename As String, ByVal dwHandle As Long, ByVal dwLen As Long, lpData As Any) As Long
 Private Declare Function GetFileVersionInfoSize Lib "version.dll" Alias "GetFileVersionInfoSizeA" (ByVal lptstrFilename As String, lpdwHandle As Long) As Long
 Private Declare Function VerQueryValue Lib "version.dll" Alias "VerQueryValueA" (pBlock As Any, ByVal lpSubBlock As String, lplpBuffer As Long, puLen As Long) As Long
-Private Declare Function lstrcpy Lib "Kernel32.dll" Alias "lstrcpyA" (ByVal lpString1 As Any, ByVal lpString2 As Any) As Long
-Private Declare Sub CopyMemory Lib "Kernel32.dll" Alias "RtlMoveMemory" (Destination As Any, ByVal Source As Any, ByVal Length As Long)
+Private Declare Function lstrcpy Lib "kernel32.dll" Alias "lstrcpyA" (ByVal lpString1 As Any, ByVal lpString2 As Any) As Long
+Private Declare Sub CopyMemory Lib "kernel32.dll" Alias "RtlMoveMemory" (Destination As Any, ByVal Source As Any, ByVal Length As Long)
 
 Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
 
@@ -138,13 +138,13 @@ Public Sub RefreshProcessListNT(objList As ListBox)
             'processes CAN be opened.... silly windows
         
             lNeeded = 0
-            sProcessName = String(260, 0)
+            sProcessName = String$(260, 0)
             If EnumProcessModules(hProc, lModules(1), CLng(1024) * 4, lNeeded) <> 0 Then
                 GetModuleFileNameExA hProc, lModules(1), sProcessName, Len(sProcessName)
                 sProcessName = TrimNull(sProcessName)
                 If sProcessName <> vbNullString Then
-                    If Left(sProcessName, 1) = "\" Then sProcessName = Mid(sProcessName, 2)
-                    If Left(sProcessName, 3) = "??\" Then sProcessName = Mid(sProcessName, 4)
+                    If Left$(sProcessName, 1) = "\" Then sProcessName = Mid$(sProcessName, 2)
+                    If Left$(sProcessName, 3) = "??\" Then sProcessName = Mid$(sProcessName, 4)
                     If InStr(1, sProcessName, "%Systemroot%", vbTextCompare) > 0 Then sProcessName = Replace(sProcessName, "%Systemroot%", sWinDir, , , vbTextCompare)
                     If InStr(1, sProcessName, "Systemroot", vbTextCompare) > 0 Then sProcessName = Replace(sProcessName, "Systemroot", sWinDir, , , vbTextCompare)
                     
@@ -209,7 +209,7 @@ Public Sub RefreshDLLListNT(lPID&, objList As ListBox)
         If EnumProcessModules(hProc, lModules(1), CLng(1024) * 4, lNeeded) <> 0 Then
             For j = 2 To 1024
                 If lModules(j) = 0 Then Exit For
-                sModuleName = String(260, 0)
+                sModuleName = String$(260, 0)
                 GetModuleFileNameExA hProc, lModules(j), sModuleName, Len(sModuleName)
                 sModuleName = TrimNull(sModuleName)
                 If sModuleName <> vbNullString And _
@@ -283,13 +283,13 @@ Public Sub SaveProcessList(objProcess As ListBox, objDLL As ListBox, Optional bD
         For i = 0 To objProcess.ListCount - 1
             sProcess = objProcess.List(i)
             Print #1, sProcess & vbTab & vbTab & _
-                      GetFilePropVersion(Mid(sProcess, InStr(sProcess, vbTab) + 1)) & vbTab & _
-                      GetFilePropCompany(Mid(sProcess, InStr(sProcess, vbTab) + 1))
+                      GetFilePropVersion(Mid$(sProcess, InStr(sProcess, vbTab) + 1)) & vbTab & _
+                      GetFilePropCompany(Mid$(sProcess, InStr(sProcess, vbTab) + 1))
         Next i
     
         If bDoDLLs Then
             sProcess = objProcess.List(objProcess.ListIndex)
-            sProcess = Mid(sProcess, InStr(sProcess, vbTab) + 1)
+            sProcess = Mid$(sProcess, InStr(sProcess, vbTab) + 1)
             Print #1, vbCrLf & vbCrLf & "DLLs loaded by process " & sProcess & ":" & vbCrLf
             Print #1, "[full path to filename]" & vbTab & vbTab & "[file version]" & vbTab & "[company name]"
             For i = 0 To objDLL.ListCount - 1
@@ -360,13 +360,13 @@ Public Sub KillProcessNTByFile(sPath$)
             'processes CAN be opened.... silly windows
 
             lNeeded = 0
-            sProcessName = String(260, 0)
+            sProcessName = String$(260, 0)
             If EnumProcessModules(hProc, lModules(1), CLng(1024) * 4, lNeeded) <> 0 Then
                 GetModuleFileNameExA hProc, lModules(1), sProcessName, Len(sProcessName)
                 sProcessName = TrimNull(sProcessName)
                 If sProcessName <> vbNullString Then
-                    If Left(sProcessName, 1) = "\" Then sProcessName = Mid(sProcessName, 2)
-                    If Left(sProcessName, 3) = "??\" Then sProcessName = Mid(sProcessName, 4)
+                    If Left$(sProcessName, 1) = "\" Then sProcessName = Mid$(sProcessName, 2)
+                    If Left$(sProcessName, 3) = "??\" Then sProcessName = Mid$(sProcessName, 4)
                     If InStr(1, sProcessName, "%Systemroot%", vbTextCompare) > 0 Then sProcessName = Replace(sProcessName, "%Systemroot%", sWinDir, , , vbTextCompare)
                     If InStr(1, sProcessName, "Systemroot", vbTextCompare) > 0 Then sProcessName = Replace(sProcessName, "Systemroot", sWinDir, , , vbTextCompare)
 
@@ -398,13 +398,13 @@ Public Sub CopyProcessList(objProcess As ListBox, objDLL As ListBox, Optional bD
     For i = 0 To objProcess.ListCount - 1
         sProcess = objProcess.List(i)
         sList = sList & sProcess & vbTab & vbTab & _
-                GetFilePropVersion(Mid(sProcess, InStr(sProcess, vbTab) + 1)) & vbTab & _
-                GetFilePropCompany(Mid(sProcess, InStr(sProcess, vbTab) + 1)) & vbCrLf
+                GetFilePropVersion(Mid$(sProcess, InStr(sProcess, vbTab) + 1)) & vbTab & _
+                GetFilePropCompany(Mid$(sProcess, InStr(sProcess, vbTab) + 1)) & vbCrLf
     Next i
     
     If bDoDLLs Then
         sProcess = objProcess.List(objProcess.ListIndex)
-        sProcess = Mid(sProcess, InStr(sProcess, vbTab) + 1)
+        sProcess = Mid$(sProcess, InStr(sProcess, vbTab) + 1)
         sList = sList & vbCrLf & vbCrLf & "DLLs loaded by process " & sProcess & ":" & vbCrLf & vbCrLf & _
                 "[full path to filename]" & vbTab & vbTab & "[file version]" & vbTab & "[company name]" & vbCrLf
         For i = 0 To objDLL.ListCount - 1
@@ -459,14 +459,14 @@ Public Function GetFilePropCompany$(sFilename$)
     If lDataLen = 0 Then Exit Function
     
     CopyMemory uCodePage(0), ByVal hData, 4
-    sCodePage = Format(Hex(uCodePage(1)), "00") & _
-                Format(Hex(uCodePage(0)), "00") & _
-                Format(Hex(uCodePage(3)), "00") & _
-                Format(Hex(uCodePage(2)), "00")
+    sCodePage = Format(Hex$(uCodePage(1)), "00") & _
+                Format(Hex$(uCodePage(0)), "00") & _
+                Format(Hex$(uCodePage(3)), "00") & _
+                Format(Hex$(uCodePage(2)), "00")
         
     'get CompanyName string
     If VerQueryValue(uBuf(0), "\StringFileInfo\" & sCodePage & "\CompanyName", hData, lDataLen) = 0 Then Exit Function
-    sCompanyName = String(lDataLen, 0)
+    sCompanyName = String$(lDataLen, 0)
     lstrcpy sCompanyName, hData
     GetFilePropCompany = TrimNull(sCompanyName)
     DoEvents

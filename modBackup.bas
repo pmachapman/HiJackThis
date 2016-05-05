@@ -7,7 +7,7 @@ Public Sub MakeBackup(ByVal sItem$)
     Dim sDPFKey$, sCLSID$, sOSD$, sINF$, sInProcServer32$
     Dim sNum$, sFile1$, sFile2$
     On Error Resume Next
-    sPath = App.Path & IIf(Right(App.Path, 1) = "\", "", "\")
+    sPath = App.Path & IIf(Right$(App.Path, 1) = "\", "", "\")
     
     If bNoWriteAccess Then Exit Sub
     If InStr(sPath, ".zip") > 0 Then Exit Sub 'running from zip in XP
@@ -32,7 +32,7 @@ Public Sub MakeBackup(ByVal sItem$)
     End If
     
     On Error GoTo Error:
-    Select Case Trim(Left(sItem, 3))
+    Select Case Trim$(Left$(sItem, 3))
         'these lot don't need any additional stuff
         'backed up, everything is in the sItem line
         Case "R0", "R3"
@@ -51,17 +51,17 @@ Public Sub MakeBackup(ByVal sItem$)
             'R1 - HKCU\Software\..\Subkey,Value[=Data]
             
             'need to get sData if not in sItem
-            If InStr(sItem, "=") = 0 Or Right(sItem, 1) = "=" Then
-                sDummy = Mid(sItem, 6)
-                Select Case Left(sDummy, 4)
+            If InStr(sItem, "=") = 0 Or Right$(sItem, 1) = "=" Then
+                sDummy = Mid$(sItem, 6)
+                Select Case Left$(sDummy, 4)
                     Case "HKCU": lHive = HKEY_CURRENT_USER
                     Case "HKCR": lHive = HKEY_CLASSES_ROOT
                     Case "HKLM": lHive = HKEY_LOCAL_MACHINE
                 End Select
-                sDummy = Mid(sDummy, 6)
-                sKey = Left(sDummy, InStr(sDummy, ",") - 1)
-                sValue = Mid(sDummy, InStr(sDummy, ",") + 1)
-                If InStr(sValue, "=") > 0 Then sValue = Left(sValue, InStr(sValue, "=") - 1)
+                sDummy = Mid$(sDummy, 6)
+                sKey = Left$(sDummy, InStr(sDummy, ",") - 1)
+                sValue = Mid$(sDummy, InStr(sDummy, ",") + 1)
+                If InStr(sValue, "=") > 0 Then sValue = Left$(sValue, InStr(sValue, "=") - 1)
                 sData = RegGetString(lHive, sKey, sValue)
                 sItem = sItem & "=" & sData
                 sData = vbNullString
@@ -85,12 +85,12 @@ Public Sub MakeBackup(ByVal sItem$)
             'O2 - BHO: BhoName - CLSID - Filename
             
             'backup BHO dll
-            Dim vDummy As Variant
+            Dim vDummy() As String
             vDummy = Split(sItem, " - ")
             If UBound(vDummy) <> 3 Then
                 If InStr(sItem, "}") > 0 And _
                    InStr(sItem, "- ") > 0 Then
-                    sDummy = Mid(sItem, InStr(InStr(sItem, "}"), sItem, "- ") + 2)
+                    sDummy = Mid$(sItem, InStr(InStr(sItem, "}"), sItem, "- ") + 2)
                 End If
             Else
                 sDummy = CStr(vDummy(3))
@@ -104,9 +104,9 @@ Public Sub MakeBackup(ByVal sItem$)
             'O4 - Common Startup: Bla.lnk = c:\dummy.exe
             If InStr(sItem, "[") = 0 Then
                 'need to backup link
-                sData = Mid(sItem, 6)
+                sData = Mid$(sItem, 6)
                 If InStr(sItem, " (User '") = 0 Then 'normal item
-                    sData = Left(sData, InStr(sData, ":") - 1)
+                    sData = Left$(sData, InStr(sData, ":") - 1)
                     Select Case sData
                         Case "Startup":                sData = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "Startup")
                         Case "AltStartup":             sData = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "AltStartup")
@@ -118,10 +118,10 @@ Public Sub MakeBackup(ByVal sItem$)
                         Case "Global User AltStartup": sData = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "Common AltStartup")
                     End Select
                 Else 'item from other user account
-                    sSID = Left(sData, InStr(sData, " ") - 1)
+                    sSID = Left$(sData, InStr(sData, " ") - 1)
                     sUserName = MapSIDToUsername(sSID)
-                    sData = Mid(sData, InStr(sData, " ") + 1)
-                    sData = Left(sData, InStr(sData, ":") - 1)
+                    sData = Mid$(sData, InStr(sData, " ") + 1)
+                    sData = Left$(sData, InStr(sData, ":") - 1)
                     Select Case sData
                         Case "Startup":                sData = RegGetString(HKEY_USERS, sSID & "\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "Startup")
                         Case "AltStartup":             sData = RegGetString(HKEY_USERS, sSID & "\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "AltStartup")
@@ -129,11 +129,11 @@ Public Sub MakeBackup(ByVal sItem$)
                         Case "User AltStartup":        sData = RegGetString(HKEY_USERS, sSID & "\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "AltStartup")
                     End Select
                     If sData <> vbNullString And FolderExists(sData) Then
-                        sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
+                        sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
                         If InStr(sDummy, " = ") > 0 Then
-                            sDummy = Left(sDummy, InStr(sDummy, " = ") - 1)
+                            sDummy = Left$(sDummy, InStr(sDummy, " = ") - 1)
                         End If
-                        sData = sData & IIf(Right(sData, 1) = "\", "", "\") & sDummy
+                        sData = sData & IIf(Right$(sData, 1) = "\", "", "\") & sDummy
                         On Error Resume Next
                         If FileExists(sData) Then FileCopy sData, sPath & "backups\" & sBackup & "-" & sDummy
                         On Error GoTo Error:
@@ -143,11 +143,11 @@ Public Sub MakeBackup(ByVal sItem$)
                 End If
                 'attempt backup the file, same for both
                 If sData <> vbNullString And FolderExists(sData) Then
-                    sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
+                    sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
                     If InStr(sDummy, " = ") > 0 Then
-                        sDummy = Left(sDummy, InStr(sDummy, " = ") - 1)
+                        sDummy = Left$(sDummy, InStr(sDummy, " = ") - 1)
                     End If
-                    sData = sData & IIf(Right(sData, 1) = "\", "", "\") & sDummy
+                    sData = sData & IIf(Right$(sData, 1) = "\", "", "\") & sDummy
                     On Error Resume Next
                     If FileExists(sData) Then
                         If (GetAttr(sData) And vbDirectory) Then
@@ -198,9 +198,9 @@ Public Sub MakeBackup(ByVal sItem$)
             'O9 - Extra 'Tools' menuitem: Related - {000...000} - c:\file.dll [(HKCU)]
             
             'need to backup all values in regkey
-            sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
-            sDummy = Mid(sDummy, InStr(sDummy, " - ") + 3)
-            sDummy = Left(sDummy, InStr(sDummy, " - ") - 1)
+            sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sDummy = Mid$(sDummy, InStr(sDummy, " - ") + 3)
+            sDummy = Left$(sDummy, InStr(sDummy, " - ") - 1)
             
             'If InStr(sItem, "Extra button:") > 0 Then
             '    sDummy = GetCLSIDOfMSIEExtension(Mid(sItem, InStr(sItem, ":") + 2), True)
@@ -247,8 +247,8 @@ Public Sub MakeBackup(ByVal sItem$)
             'O11 - Options group: [COMMONNAME] CommonName
             
             'need to backup everything in that key
-            sDummy = Left(sItem, InStr(sItem, "]") - 1)
-            sDummy = Mid(sItem, InStr(sItem, "[") + 1)
+            sDummy = Left$(sItem, InStr(sItem, "]") - 1)
+            sDummy = Mid$(sItem, InStr(sItem, "[") + 1)
             Shell sWinDir & "\regedit.exe /e """ & sPath & "backups\" & sBackup & "-advopt.reg"" ""HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer\AdvancedOptions\" & sDummy & """", vbHide
             
             If Dir(sPath & "backups\" & sBackup & "-advopt.reg") <> vbNullString Then
@@ -270,13 +270,13 @@ Public Sub MakeBackup(ByVal sItem$)
             'need to backup subkey + 'Location' value
             If InStr(sItem, "Plugin for .") > 0 Then
                 'plugin for file extension
-                sDummy = Left(sItem, InStr(sItem, ":") - 1)
-                sDummy = Mid(sDummy, InStr(sDummy, "."))
+                sDummy = Left$(sItem, InStr(sItem, ":") - 1)
+                sDummy = Mid$(sDummy, InStr(sDummy, "."))
                 sDummy = "Extension\" & sDummy
             Else
                 'plugin for MIME type
-                sDummy = Left(sItem, InStr(sItem, ":") - 1)
-                sDummy = Mid(sItem, InStr(sItem, " for ") + 5)
+                sDummy = Left$(sItem, InStr(sItem, ":") - 1)
+                sDummy = Mid$(sItem, InStr(sItem, " for ") + 5)
                 sDummy = "MIME\" & sDummy
             End If
             Shell sWinDir & "\regedit.exe /e """ & sPath & "backups\" & sBackup & "-plugin.reg"" ""HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer\Plugins\" & sDummy & """", vbHide
@@ -301,16 +301,16 @@ Public Sub MakeBackup(ByVal sItem$)
             'and (if applic) HKCR\CLSID\{0000}
             'need to backup files OSD, INF, InProcServer32
             
-            sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
-            If Left(sDummy, 1) = "{" Then
+            sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
+            If Left$(sDummy, 1) = "{" Then
                 'name is CLSID
-                sDummy = Left(sDummy, InStr(sDummy, "}"))
+                sDummy = Left$(sDummy, InStr(sDummy, "}"))
             Else
                 'name is just name
-                sDummy = Left(sDummy, InStr(sDummy, " - ") - 1)
+                sDummy = Left$(sDummy, InStr(sDummy, " - ") - 1)
             End If
             Shell sWinDir & "\regedit.exe /e """ & sPath & "backups\" & sBackup & "-dpf1.reg"" ""HKEY_LOCAL_MACHINE\Software\Microsoft\Code Store Database\Distribution Units\" & sDummy & """", vbHide
-            If Left(sDummy, 1) = "{" Then
+            If Left$(sDummy, 1) = "{" Then
                 Shell sWinDir & "\regedit.exe /e """ & sPath & "backups\" & sBackup & "-dpf2.reg"" ""HKEY_CLASSES_ROOT\CLSID\" & sDummy & """", vbHide
             End If
             DoEvents
@@ -363,7 +363,7 @@ Public Sub MakeBackup(ByVal sItem$)
             End If
             
             'backup InProcServer32
-            If Left(sCLSID, 1) = "{" And Right(sCLSID, 1) = "}" Then
+            If Left$(sCLSID, 1) = "{" And Right$(sCLSID, 1) = "}" Then
                 sLine = RegGetString(HKEY_CLASSES_ROOT, "CLSID\" & sCLSID & "\InProcServer32", "")
                 If sLine <> vbNullString Then
                     If FileExists(sLine) Then
@@ -380,8 +380,8 @@ Public Sub MakeBackup(ByVal sItem$)
             'todo:
             'backup regkey
             If InStr(sItem, "Winlogon Notify:") > 0 Then
-                sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
-                sDummy = Left(sDummy, InStr(sDummy, " - ") - 1)
+                sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
+                sDummy = Left$(sDummy, InStr(sDummy, " - ") - 1)
                 
                 Shell sWinDir & "\regedit.exe /e """ & sPath & "backups\" & sBackup & "-notify.reg"" ""HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify\" & sDummy & """", vbHide
                 DoEvents
@@ -399,9 +399,9 @@ Public Sub MakeBackup(ByVal sItem$)
             'O21 - SSODL: webcheck - {000....000} - c:\file.dll
             'todo:
             'backup CLSID regkey
-            sCLSID = Mid(sItem, 14)
-            sCLSID = Mid(sCLSID, InStr(sCLSID, " - ") + 3)
-            sCLSID = Left(sCLSID, InStr(sCLSID, " - ") - 1)
+            sCLSID = Mid$(sItem, 14)
+            sCLSID = Mid$(sCLSID, InStr(sCLSID, " - ") + 3)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, " - ") - 1)
             
             Shell sWinDir & "\regedit.exe /e """ & sPath & "backups\" & sBackup & "-ssodl.reg"" ""HKEY_CLASSES_ROOT\CLSID\" & sCLSID & """", vbHide
             DoEvents
@@ -417,9 +417,9 @@ Public Sub MakeBackup(ByVal sItem$)
             'O22 - SharedTaskScheduler: blah - {000...000} - file.dll
             'todo:
             'backup CLSID regkey
-            sCLSID = Mid(sItem, InStr(sItem, ": ") + 2)
-            sCLSID = Mid(sCLSID, InStr(sCLSID, " - ") + 3)
-            sCLSID = Left(sCLSID, InStr(sCLSID, " - ") - 1)
+            sCLSID = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sCLSID = Mid$(sCLSID, InStr(sCLSID, " - ") + 3)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, " - ") - 1)
             
             Shell sWinDir & "\regedit.exe /e """ & sPath & "backups\" & sBackup & "-sts.reg"" ""HKEY_CLASSES_ROOT\CLSID\" & sCLSID & """", vbHide
             DoEvents
@@ -435,10 +435,10 @@ Public Sub MakeBackup(ByVal sItem$)
             'O24 - Desktop Component N: blah - c:\windows\index.html
             'todo:
             'backup regkey, html file (if present)
-            sNum = Mid(sItem, InStr(sItem, ":") - 1, 1)
+            sNum = Mid$(sItem, InStr(sItem, ":") - 1, 1)
             sFile1 = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Internet Explorer\Desktop\Components\" & sNum, "Source")
             sFile2 = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Internet Explorer\Desktop\Components\" & sNum, "SubscribedURL")
-            If LCase(sFile2) = LCase(sFile1) Then sFile2 = vbNullString
+            If LCase$(sFile2) = LCase$(sFile1) Then sFile2 = vbNullString
             
             Shell sWinDir & "\regedit.exe /e """ & sPath & "backups\" & sBackup & "-dc.reg"" ""HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Desktop\Components\" & sNum & """", vbHide
             DoEvents
@@ -457,7 +457,7 @@ Public Sub MakeBackup(ByVal sItem$)
     End Select
         
     'winNT/2000/XP reg data workaround
-    If Left(sData, 2) = "ÿþ" Then sData = Mid(sData, 3)
+    If Left$(sData, 2) = "ÿþ" Then sData = Mid$(sData, 3)
     sData = StrConv(sData, vbFromUnicode)
     
     'write item + any data to file
@@ -480,20 +480,20 @@ Public Sub RestoreBackup(ByVal sItem$)
     'format of sItem:
     ' [short date], [long time]: [original item name]
     Dim sPath$, sDate$, sTime$, sFile$, sBackup$, sSID$
-    Dim sName$, sDummy$, i%, sKey1, sKey2$
+    Dim sName$, sDummy$, i%, sKey1 As String, sKey2$
     Dim sRegKey$, sRegKey2$, sRegKey3$, sRegKey4$, sRegKey5$
     Dim bBackupHasRegData As Boolean, bBackupHasDLL As Boolean
     On Error GoTo Error:
     
-    sPath = App.Path & IIf(Right(App.Path, 1) = "\", "", "\")
+    sPath = App.Path & IIf(Right$(App.Path, 1) = "\", "", "\")
     If Not FolderExists(sPath & "backups") Then Exit Sub
     
-    sDate = Left(sItem, InStr(sItem, ", ") - 1)
-    sTime = Mid(sItem, InStr(sItem, ", ") + 2)
-    sName = Mid(sTime, InStr(sTime, ": ") + 2)
-    sTime = Left(sTime, InStr(sTime, ": ") - 1)
+    sDate = Left$(sItem, InStr(sItem, ", ") - 1)
+    sTime = Mid$(sItem, InStr(sItem, ", ") + 2)
+    sName = Mid$(sTime, InStr(sTime, ": ") + 2)
+    sTime = Left$(sTime, InStr(sTime, ": ") - 1)
     
-    sItem = Mid(sItem, InStr(sItem, ": ") + 2)
+    sItem = Mid$(sItem, InStr(sItem, ": ") + 2)
     
     If Not bIsUSADateFormat Then
         sDate = Format(sDate, "yyyymmdd")
@@ -559,23 +559,23 @@ Public Sub RestoreBackup(ByVal sItem$)
     Dim sMyFile$, sMyName$, sCLSID$, sLine$
     Dim sDPFKey$, sINF$, sOSD$, sInProcServer32$
     
-    Select Case Trim(Left(sName, 3))
+    Select Case Trim$(Left$(sName, 3))
         Case "R0", "R1" 'Changed/Created Regval
             'R0 - HKCU\Software\..\Subkey,Value=Data
             'R1 - HKCU\Software\..\Subkey,Value=Data
-            sDummy = Mid(sName, 6)
-            Select Case Left(sDummy, 4)
+            sDummy = Mid$(sName, 6)
+            Select Case Left$(sDummy, 4)
                 Case "HKCU": lHive = HKEY_CURRENT_USER
                 Case "HKLM": lHive = HKEY_LOCAL_MACHINE
             End Select
-            sKey = Mid(sDummy, 6)
-            sVal = Mid(sKey, InStr(sKey, ",") + 1)
-            sKey = Left(sKey, InStr(sKey, ",") - 1)
-            sData = Mid(sVal, InStr(sVal, " = ") + 3)
-            sVal = Left(sVal, InStr(sVal, " = ") - 1)
+            sKey = Mid$(sDummy, 6)
+            sVal = Mid$(sKey, InStr(sKey, ",") + 1)
+            sKey = Left$(sKey, InStr(sKey, ",") - 1)
+            sData = Mid$(sVal, InStr(sVal, " = ") + 3)
+            sVal = Left$(sVal, InStr(sVal, " = ") - 1)
             If sVal = "(Default)" Then sVal = ""
             If InStr(sData, " (obfuscated)") > 0 Then
-                sData = Left(sData, InStr(sData, " (obfuscated)") - 1)
+                sData = Left$(sData, InStr(sData, " (obfuscated)") - 1)
             End If
             RegSetStringVal lHive, sKey, sVal, sData
             If FileExists(sPath & "backups\" & sFile) Then DeleteFile sPath & "backups\" & sFile
@@ -585,14 +585,14 @@ Public Sub RestoreBackup(ByVal sItem$)
             
         Case "R3" 'URLSearchHoook
             'R3 - URLSearchHook: blah - {0000} - bla.dll
-            sDummy = Mid(sName, InStr(sName, "- {") + 2)
-            sDummy = Left(sDummy, InStr(sDummy, "}"))
+            sDummy = Mid$(sName, InStr(sName, "- {") + 2)
+            sDummy = Left$(sDummy, InStr(sDummy, "}"))
             RegSetStringVal HKEY_CURRENT_USER, "Software\Microsoft\Internet Explorer\URLSearchHooks", sDummy, ""
             If FileExists(sPath & "backups\" & sFile) Then DeleteFile sPath & "backups\" & sFile
             
         Case "F0", "F1" 'Changed/Created Inifile val
             'F0 - system.ini: Shell=Explorer.exe openme.exe
-            sDummy = Mid(sName, 6)
+            sDummy = Mid$(sName, 6)
             'sMyFile = Left(sDummy, InStr(sDummy, ":") - 1)
             If InStr(sDummy, "system.ini") = 1 Then
                 sSection = "boot"
@@ -601,10 +601,10 @@ Public Sub RestoreBackup(ByVal sItem$)
                 sSection = "windows"
                 sMyFile = "win.ini"
             End If
-            sVal = Mid(sDummy, InStr(sDummy, ": ") + 2)
+            sVal = Mid$(sDummy, InStr(sDummy, ": ") + 2)
             'sMyFile = Left(sDummy, InStr(sDummy, ":") - 1)
-            sData = Mid(sVal, InStr(sVal, "=") + 1)
-            sVal = Left(sVal, InStr(sVal, "=") - 1)
+            sData = Mid$(sVal, InStr(sVal, "=") + 1)
+            sVal = Left$(sVal, InStr(sVal, "=") - 1)
             'WritePrivateProfileString sSection, sVal, sData, sMyFile
             IniSetString sMyFile, sSection, sVal, sData
             If FileExists(sPath & "backups\" & sFile) Then DeleteFile sPath & "backups\" & sFile
@@ -613,7 +613,7 @@ Public Sub RestoreBackup(ByVal sItem$)
             'F2 - REG:system.ini: Shell=Explorer.exe blah
             'F2 - REG:system.ini: Userinit=c:\windows\system32\userinit.exe,blah
             'F3 - REG:win.ini: load=blah or run=blah
-            sData = Mid(sName, InStr(sName, "=") + 1)
+            sData = Mid$(sName, InStr(sName, "=") + 1)
             If InStr(sName, "system.ini") > 0 Then
                 If InStr(1, sName, "Shell=", vbTextCompare) > 0 Then
                     RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows NT\CurrentVersion\WinLogon", "Shell", sData
@@ -639,10 +639,10 @@ Public Sub RestoreBackup(ByVal sItem$)
             '               user_pref("browser.search.defaultengine", "http://url"); (c:\..\prefs.js)
             
             'get user_pref line + prefs.js location
-            sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
-            sMyFile = Mid(sDummy, InStrRev(sDummy, "(") + 1)
-            sMyFile = Left(sMyFile, Len(sMyFile) - 1)
-            sDummy = Left(sDummy, InStrRev(sDummy, "(") - 2)
+            sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sMyFile = Mid$(sDummy, InStrRev(sDummy, "(") + 1)
+            sMyFile = Left$(sMyFile, Len(sMyFile) - 1)
+            sDummy = Left$(sDummy, InStrRev(sDummy, "(") - 2)
             
             If Not FileExists(sMyFile) Then
                 MsgBox "Could not find prefs.js file for Netscape/Mozilla, homepage has not been restored.", vbExclamation
@@ -673,11 +673,11 @@ Public Sub RestoreBackup(ByVal sItem$)
         Case "O1" 'Hosts file hijack
             'O1 - Hosts file: 66.123.204.8 auto.search.msn.com
             If InStr(sName, "Hosts file is located at") > 0 Then
-                sDummy = Mid(sName, InStr(sName, " at") + 5)
-                sDummy = Left(sDummy, Len(sDummy) - 6)
+                sDummy = Mid$(sName, InStr(sName, " at") + 5)
+                sDummy = Left$(sDummy, Len(sDummy) - 6)
                 RegSetStringVal HKEY_LOCAL_MACHINE, "System\CurrentControlSet\Services\Tcpip\Parameters", "DatabasePath", sDummy
             Else
-                sDummy = Mid(sName, InStr(sName, ": ") + 2)
+                sDummy = Mid$(sName, InStr(sName, ": ") + 2)
                 i = GetAttr(sHostsFile)
                 If (i And 2048) Then i = i - 2048
                 SetAttr sHostsFile, vbNormal
@@ -690,14 +690,14 @@ Public Sub RestoreBackup(ByVal sItem$)
             
         Case "O2" 'BHO
             'O2 - BHO: [bhoname] - [clsid] - [file]
-            sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
-            sMyName = Left(sDummy, InStr(sDummy, " - ") - 1)
-            sCLSID = Mid(sDummy, InStr(sDummy, " - ") + 3)
-            sMyFile = Mid(sCLSID, InStr(sCLSID, " - ") + 3)
+            sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sMyName = Left$(sDummy, InStr(sDummy, " - ") - 1)
+            sCLSID = Mid$(sDummy, InStr(sDummy, " - ") + 3)
+            sMyFile = Mid$(sCLSID, InStr(sCLSID, " - ") + 3)
             If InStr(sMyFile, "(file missing)") > 0 Then
-                sMyFile = Left(sMyFile, InStr(sMyFile, "(file missing)") - 1)
+                sMyFile = Left$(sMyFile, InStr(sMyFile, "(file missing)") - 1)
             End If
-            sCLSID = Left(sCLSID, InStr(sCLSID, " - ") - 1)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, " - ") - 1)
             
             RegCreateKey HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\explorer\Browser Helper Objects\" & sCLSID
             If sMyName <> "(no name)" Then RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\explorer\Browser Helper Objects\" & sCLSID, vbNullString, sMyName
@@ -724,10 +724,10 @@ Public Sub RestoreBackup(ByVal sItem$)
             
         Case "O3" 'IE Toolbar
             'O3 - Toolbar: Radio - {00000000-0000-0000-0000-000000000000}
-            sMyName = Mid(sItem, InStr(sItem, ": ") + 2)
-            sCLSID = Mid(sMyName, InStr(sMyName, " - ") + 3)
-            sCLSID = Left(sCLSID, InStr(sCLSID, "}"))
-            sMyName = Left(sMyName, InStr(sMyName, " - ") - 1)
+            sMyName = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sCLSID = Mid$(sMyName, InStr(sMyName, " - ") + 3)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, "}"))
+            sMyName = Left$(sMyName, InStr(sMyName, " - ") - 1)
             'If sMyName = "(no name)" Then sMyName = vbNullString
             
             RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Internet Explorer\Toolbar", sCLSID, sMyName
@@ -742,18 +742,18 @@ Public Sub RestoreBackup(ByVal sItem$)
                 
             If InStr(sItem, "[") > 0 Then
                 'registry autorun
-                sDummy = Mid(sItem, 6)
-                Select Case Left(sDummy, 4)
+                sDummy = Mid$(sItem, 6)
+                Select Case Left$(sDummy, 4)
                     Case "HKLM": lHive = HKEY_LOCAL_MACHINE
                     Case "HKCU": lHive = HKEY_CURRENT_USER
                     Case "HKUS": lHive = HKEY_USERS
                 End Select
                 If Not lHive = HKEY_USERS Then
-                    sDummy = Mid(sDummy, 9)
+                    sDummy = Mid$(sDummy, 9)
                 Else
-                    sDummy = Mid(sDummy, 6)
-                    sSID = Left(sDummy, InStr(sDummy, "\") - 1)
-                    sDummy = Mid(sDummy, Len(sSID) + 5)
+                    sDummy = Mid$(sDummy, 6)
+                    sSID = Left$(sDummy, InStr(sDummy, "\") - 1)
+                    sDummy = Mid$(sDummy, Len(sSID) + 5)
                 End If
                 If InStr(sDummy, "RunOnce:") = 1 Then
                     sKey = "Software\Microsoft\Windows\CurrentVersion\RunOnce"
@@ -768,25 +768,25 @@ Public Sub RestoreBackup(ByVal sItem$)
                         sKey = "Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run"
                     End If
                 End If
-                sDummy = Mid(sDummy, InStr(sDummy, "[") + 1)
-                sVal = Left(sDummy, InStrRev(sDummy, "]") - 1)
-                sData = Mid(sDummy, InStrRev(sDummy, "]") + 2)
+                sDummy = Mid$(sDummy, InStr(sDummy, "[") + 1)
+                sVal = Left$(sDummy, InStrRev(sDummy, "]") - 1)
+                sData = Mid$(sDummy, InStrRev(sDummy, "]") + 2)
                 
                 If lHive <> HKEY_USERS Then
                     RegSetStringVal lHive, sKey, sVal, sData
                 Else
-                    sData = Left(sData, InStr(sData, "(User '") - 2)
+                    sData = Left$(sData, InStr(sData, "(User '") - 2)
                     RegSetStringVal lHive, sSID & "\" & sKey, sVal, sData
                 End If
             Else
                 'O4 - Startup: bla.lnk = c:\bla.exe
                 'backup file is sPath & "backups\" & sBackup & "-" & filename
-                sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
+                sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
                 If InStr(sDummy, " = ") > 0 Then
-                    sDummy = Left(sDummy, InStr(sDummy, " = ") - 1)
+                    sDummy = Left$(sDummy, InStr(sDummy, " = ") - 1)
                 End If
-                sData = Mid(sItem, 6)
-                sData = Left(sData, InStr(sData, ": ") - 1)
+                sData = Mid$(sItem, 6)
+                sData = Left$(sData, InStr(sData, ": ") - 1)
                 Select Case sData
                     Case "Startup":                sData = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "Startup")
                     Case "User Startup":           sData = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", "Startup")
@@ -796,10 +796,10 @@ Public Sub RestoreBackup(ByVal sItem$)
                 End Select
                 If sData <> vbNullString Then
                     If (GetAttr(sData) And vbDirectory) Then
-                        CopyFolder sPath & "backups\" & sBackup & "-" & sDummy, sData & IIf(Right(sData, 1) = "\", "", "\") & sDummy
+                        CopyFolder sPath & "backups\" & sBackup & "-" & sDummy, sData & IIf(Right$(sData, 1) = "\", "", "\") & sDummy
                     Else
                         On Error Resume Next
-                        FileCopy sPath & "backups\" & sBackup & "-" & sDummy, sData & IIf(Right(sData, 1) = "\", "", "\") & sDummy
+                        FileCopy sPath & "backups\" & sBackup & "-" & sDummy, sData & IIf(Right$(sData, 1) = "\", "", "\") & sDummy
                         On Error GoTo Error:
                     End If
                 End If
@@ -848,7 +848,7 @@ Public Sub RestoreBackup(ByVal sItem$)
             
             'regedit in 2000/XP tends to prefix ÿþ
             'to .reg files - they won't merge then
-            If Left(sMyFile, 2) = "ÿþ" Then sMyFile = Mid(sMyFile, 3)
+            If Left$(sMyFile, 2) = "ÿþ" Then sMyFile = Mid$(sMyFile, 3)
             
             Open sPath & "backups\" & sFile & ".reg" For Output As #1
                 Print #1, sMyFile
@@ -860,9 +860,9 @@ Public Sub RestoreBackup(ByVal sItem$)
             
         Case "O8" 'IE Context menuitem
             'O8 - Extra context menu item: &Title - C:\Windows\web\dummy.htm
-            sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
-            sMyFile = Mid(sDummy, InStr(sDummy, " - ") + 3)
-            sDummy = Left(sDummy, InStr(sDummy, " - ") - 1)
+            sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sMyFile = Mid$(sDummy, InStr(sDummy, " - ") + 3)
+            sDummy = Left$(sDummy, InStr(sDummy, " - ") - 1)
             
             RegCreateKey HKEY_CURRENT_USER, "Software\Microsoft\Internet Explorer\MenuExt\" & sDummy
             RegSetStringVal HKEY_CURRENT_USER, "Software\Microsoft\Internet Explorer\MenuExt\" & sDummy, vbNullString, sMyFile
@@ -878,9 +878,9 @@ Public Sub RestoreBackup(ByVal sItem$)
             'O13 - DefaultPrefix: http://www.prolivation.com/cgi?
             'O13 - WWW Prefix: http://www.prolivation.com/cgi?
             
-            sMyName = Mid(sItem, InStr(sItem, ": ") + 2)
-            sDummy = Mid(sItem, 7)
-            sDummy = Left(sDummy, InStr(sDummy, ": ") - 1)
+            sMyName = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sDummy = Mid$(sItem, 7)
+            sDummy = Left$(sDummy, InStr(sDummy, ": ") - 1)
             Select Case sDummy
                 Case "DefaultPrefix": RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\URL\DefaultPrefix", "", sMyName
                 Case "WWW Prefix":    RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\URL\Prefixes", "www", sMyName
@@ -896,9 +896,9 @@ Public Sub RestoreBackup(ByVal sItem$)
             'O14 - IERESET.INF: START_PAGE_URL="http://www.searchalot.com"
             
             'get value + URL to revert from sItem
-            sName = Mid(sItem, InStr(sItem, ": ") + 2)
-            sDummy = Mid(sItem, InStr(sItem, "=") + 1)
-            sName = Left(sName, InStr(sName, "=") - 1)
+            sName = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sDummy = Mid$(sItem, InStr(sItem, "=") + 1)
+            sName = Left$(sName, InStr(sName, "=") - 1)
             If sName <> "SearchAssistant" And sName <> "CustomizeSearch" Then sName = sName & "="
             
             sMyFile = vbNullString
@@ -935,17 +935,17 @@ Public Sub RestoreBackup(ByVal sItem$)
             sRegKey4 = "Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\EscDomains\"
             sRegKey5 = "Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\EscRanges\"
             
-            sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
+            sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
             If InStr(sItem, "ProtocolDefaults:") > 0 Then GoTo ProtDefs:
-            If InStr(sDummy, "//") > 0 Then sDummy = Mid(sDummy, InStr(sDummy, "//") + 2)
+            If InStr(sDummy, "//") > 0 Then sDummy = Mid$(sDummy, InStr(sDummy, "//") + 2)
             If InStr(sDummy, "*.") > 0 Then
-                sDummy = Mid(sDummy, InStr(sDummy, "*.") + 2)
+                sDummy = Mid$(sDummy, InStr(sDummy, "*.") + 2)
                 If InStr(sDummy, ".") <> InStrRev(sDummy, ".") Then sDummy = "*." & sDummy
             End If
             
             If InStr(sItem, " (HKLM)") > 0 Then
                 lHive = HKEY_LOCAL_MACHINE
-                sDummy = Left(sDummy, InStr(sDummy, " (HKLM)") - 1)
+                sDummy = Left$(sDummy, InStr(sDummy, " (HKLM)") - 1)
             Else
                 lHive = HKEY_CURRENT_USER
             End If
@@ -968,8 +968,8 @@ Public Sub RestoreBackup(ByVal sItem$)
                     If DomainHasDoubleTLD(sDummy) Then
                         i = InStrRev(sDummy, ".", i - 1)
                     End If
-                    sKey2 = Mid(sDummy, i + 1)
-                    sKey1 = sKey2 & "\" & Left(sDummy, i - 1)
+                    sKey2 = Mid$(sDummy, i + 1)
+                    sKey1 = sKey2 & "\" & Left$(sDummy, i - 1)
                 End If
                 If InStr(sItem, "ESC Trusted") = 0 Then
                     RegCreateKey lHive, sRegKey & sKey2
@@ -1014,10 +1014,10 @@ Public Sub RestoreBackup(ByVal sItem$)
 ProtDefs:
             'O15 - ProtocolDefaults: 'http' protocol is in Trusted Zone, should be Internet Zone (HKLM)
             Dim sProt$, sZone$, lZone&
-            sProt = Mid(sItem, InStr(sItem, ": ") + 3)
-            sProt = Left(sProt, InStr(sProt, "'") - 1)
-            sZone = Mid(sItem, InStr(sItem, "is in ") + 6)
-            sZone = Left(sZone, InStr(sZone, ",") - 1)
+            sProt = Mid$(sItem, InStr(sItem, ": ") + 3)
+            sProt = Left$(sProt, InStr(sProt, "'") - 1)
+            sZone = Mid$(sItem, InStr(sItem, "is in ") + 6)
+            sZone = Left$(sZone, InStr(sZone, ",") - 1)
             Select Case sZone
                 Case "My Computer Zone": lZone = 0
                 Case "Intranet Zone": lZone = 1
@@ -1054,7 +1054,7 @@ ProtDefs:
             
             'regedit in 2000/XP tends to prepend ÿþ
             'to .reg files - they won't merge then
-            If Left(sData, 2) = "ÿþ" Then sData = Mid(sData, 3)
+            If Left$(sData, 2) = "ÿþ" Then sData = Mid$(sData, 3)
             
             Open sPath & "backups\" & sFile & ".reg" For Output As #1
                 Print #1, sData
@@ -1065,11 +1065,11 @@ ProtDefs:
             
             'restore all the files
             sDPFKey = "Software\Microsoft\Code Store Database\Distribution Units"
-            sCLSID = Mid(sName, 12)
-            If Left(sCLSID, 1) = "{" Then
-                sCLSID = Left(sCLSID, InStr(sCLSID, "}"))
+            sCLSID = Mid$(sName, 12)
+            If Left$(sCLSID, 1) = "{" Then
+                sCLSID = Left$(sCLSID, InStr(sCLSID, "}"))
             Else
-                sCLSID = Left(sCLSID, InStr(sCLSID, " - ") - 1)
+                sCLSID = Left$(sCLSID, InStr(sCLSID, " - ") - 1)
             End If
             sINF = RegGetString(HKEY_LOCAL_MACHINE, sDPFKey & "\" & sCLSID & "\DownloadInformation", "INF")
             If sINF <> vbNullString Then
@@ -1091,7 +1091,7 @@ ProtDefs:
             If sInProcServer32 <> vbNullString Then
                 If FileExists(sPath & "backups\" & sFile & ".dll") Then
                     On Error Resume Next
-                    FileCopy sPath & "backups\" & sFile & ".dll", LCase(sInProcServer32)
+                    FileCopy sPath & "backups\" & sFile & ".dll", LCase$(sInProcServer32)
                     On Error GoTo Error:
                     Shell sWinDir & IIf(bIsWinNT, "\system32", "\system") & "\regsvr32.exe /s """ & sInProcServer32 & """", vbHide
                 End If
@@ -1105,15 +1105,15 @@ ProtDefs:
             'O17 - HKLM\Software\..\Telephony: DomainName = blah
             'O17 - HKLM\System\CS1\Services\Tcpip\..\{00000}: Domain = blah
             
-            sVal = Mid(sItem, InStrRev(sItem, ": ") + 2)
-            sData = Mid(sVal, InStr(sVal, " = ") + 3)
-            sVal = Left(sVal, InStr(sVal, " = ") - 1)
-            sKey = Mid(sItem, 12)
-            sKey = Left(sKey, InStr(sKey, ": ") - 1)
+            sVal = Mid$(sItem, InStrRev(sItem, ": ") + 2)
+            sData = Mid$(sVal, InStr(sVal, " = ") + 3)
+            sVal = Left$(sVal, InStr(sVal, " = ") - 1)
+            sKey = Mid$(sItem, 12)
+            sKey = Left$(sKey, InStr(sKey, ": ") - 1)
             sKey = Replace(sKey, "\CCS\", "\CurrentControlSet\")
             If InStr(sKey, "System\CS") > 0 Then
                 For i = 1 To 20
-                    sKey = Replace(sKey, "System\CS" & CStr(i), "System\ControlSet" & String(3 - Len(CStr(i)), "0") & CStr(i))
+                    sKey = Replace(sKey, "System\CS" & CStr(i), "System\ControlSet" & String$(3 - Len(CStr(i)), "0") & CStr(i))
                 Next i
             End If
             If InStr(sKey, "\..\") > 0 Then
@@ -1131,10 +1131,10 @@ ProtDefs:
             'O18 - Protocol hijack: res - {000000000}
             'O18 - Filter: text/html - {000} - file.dll
             'O18 - Filter hijack: text/xml - {000} - file.dll
-            sCLSID = Mid(sItem, InStr(sItem, " - {") + 3)
-            sCLSID = Left(sCLSID, InStr(sCLSID, " - ") - 1)
-            sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
-            sDummy = Left(sDummy, InStr(sDummy, " - {") - 1)
+            sCLSID = Mid$(sItem, InStr(sItem, " - {") + 3)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, " - ") - 1)
+            sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sDummy = Left$(sDummy, InStr(sDummy, " - {") - 1)
             If InStr(sItem, "Protocol: ") > 0 Then
                 RegCreateKey HKEY_CLASSES_ROOT, "Protocols\Handler\" & sDummy
                 RegSetStringVal HKEY_CLASSES_ROOT, "Protocols\Handler\" & sDummy, "CLSID", sCLSID
@@ -1147,14 +1147,14 @@ ProtDefs:
         Case "O19" 'user stylesheet
             'O19 - User stylesheet: c:\file.css (file missing) (HKLM)
             
-            sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
+            sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
             If InStr(sDummy, " (HKLM)") = 0 Then
                 lHive = HKEY_CURRENT_USER
             Else
                 lHive = HKEY_LOCAL_MACHINE
             End If
             If InStr(sDummy, "(file missing)") > 0 Then
-                sDummy = Left(sDummy, InStr(sDummy, " (file missing)") - 1)
+                sDummy = Left$(sDummy, InStr(sDummy, " (file missing)") - 1)
             End If
             RegSetDwordVal lHive, "Software\Microsoft\Internet Explorer\Styles", "Use My Stylesheet", 1
             RegSetStringVal lHive, "Software\Microsoft\Internet Explorer\Styles", "User Stylesheet", sDummy
@@ -1164,7 +1164,7 @@ ProtDefs:
             'O20 - AppInit_DLLs: file.dll
             'O20 - Winlogon Notify: blaat - c:\file.dll
             If InStr(sItem, "AppInit_DLLs") > 0 Then
-                sDummy = Mid(sItem, InStr(sItem, ": ") + 2)
+                sDummy = Mid$(sItem, InStr(sItem, ": ") + 2)
                 sDummy = Replace(sDummy, "|", Chr(0))
                 RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows NT\CurrentVersion\Windows", "AppInit_DLLs", sDummy
             Else
@@ -1178,7 +1178,7 @@ ProtDefs:
                         sData = sData & sLine & vbCrLf
                     Loop Until EOF(1)
                 Close #1
-                If Left(sData, 2) = "ÿþ" Then sData = Mid(sData, 3)
+                If Left$(sData, 2) = "ÿþ" Then sData = Mid$(sData, 3)
                 Open sPath & "backups\" & sFile & ".reg" For Output As #1
                     Print #1, sData
                 Close #1
@@ -1195,10 +1195,10 @@ ProtDefs:
             'get, print and merge .reg data for clsid regkey
             'reconstruct reg value at SSODL regkey
             
-            sName = Mid(sItem, InStr(sItem, ": ") + 2)
-            sCLSID = Mid(sName, InStr(sName, " - ") + 3)
-            sName = Left(sName, InStr(sName, " - ") - 1)
-            sCLSID = Left(sCLSID, InStr(sCLSID, " - ") - 1)
+            sName = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sCLSID = Mid$(sName, InStr(sName, " - ") + 3)
+            sName = Left$(sName, InStr(sName, " - ") - 1)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, " - ") - 1)
             RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad", sName, sCLSID
             
             'backup has extra info with reg data
@@ -1214,7 +1214,7 @@ ProtDefs:
             
             'regedit in 2000/XP tends to prepend ÿþ
             'to .reg files - they won't merge then
-            If Left(sData, 2) = "ÿþ" Then sData = Mid(sData, 3)
+            If Left$(sData, 2) = "ÿþ" Then sData = Mid$(sData, 3)
             
             Open sPath & "backups\" & sFile & ".reg" For Output As #1
                 Print #1, sData
@@ -1230,10 +1230,10 @@ ProtDefs:
             'restore sts regval
             'restore clsid regkey
             
-            sName = Mid(sItem, InStr(sItem, ": ") + 2)
-            sCLSID = Mid(sName, InStr(sName, " - ") + 3)
-            sName = Left(sName, InStr(sName, " - ") - 1)
-            sCLSID = Left(sCLSID, InStr(sCLSID, " - ") - 1)
+            sName = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sCLSID = Mid$(sName, InStr(sName, " - ") + 3)
+            sName = Left$(sName, InStr(sName, " - ") - 1)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, " - ") - 1)
             RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Explorer\SharedTaskScheduler", sCLSID, sName
             
             'backup has extra info with reg data
@@ -1249,7 +1249,7 @@ ProtDefs:
             
             'regedit in 2000/XP tends to prepend ÿþ
             'to .reg files - they won't merge then
-            If Left(sData, 2) = "ÿþ" Then sData = Mid(sData, 3)
+            If Left$(sData, 2) = "ÿþ" Then sData = Mid$(sData, 3)
             
             Open sPath & "backups\" & sFile & ".reg" For Output As #1
                 Print #1, sData
@@ -1264,8 +1264,8 @@ ProtDefs:
             'todo:
             'enable & start service
             Dim sServices$(), sDisplayName$
-            sDisplayName = Mid(sItem, InStr(sItem, ": ") + 2)
-            sDisplayName = Left(sDisplayName, InStr(sDisplayName, " - ") - 1)
+            sDisplayName = Mid$(sItem, InStr(sItem, ": ") + 2)
+            sDisplayName = Left$(sDisplayName, InStr(sDisplayName, " - ") - 1)
             sServices = Split(RegEnumSubkeys(HKEY_LOCAL_MACHINE, "System\CurrentControlSet\Services"), "|")
             If UBound(sServices) <> 0 And UBound(sServices) <> -1 Then
                 For i = 0 To UBound(sServices)
@@ -1285,8 +1285,8 @@ ProtDefs:
             'restore reg key
             Dim sSource$
             'copy file back to Source and SubscribedURL
-            sSource = Mid(sItem, InStr(sItem, ":"))
-            sSource = Mid(sSource, InStr(sSource, " - ") + 3)
+            sSource = Mid$(sItem, InStr(sItem, ":"))
+            sSource = Mid$(sSource, InStr(sSource, " - ") + 3)
             If sSource <> "(no file)" Then
                 'only one is backed up if they are the same
                 If FileExists(sPath & "backups\" & sFile & "-source.html") Then
@@ -1310,7 +1310,7 @@ ProtDefs:
             
             'regedit in 2000/XP tends to prepend ÿþ
             'to .reg files - they won't merge then
-            If Left(sData, 2) = "ÿþ" Then sData = Mid(sData, 3)
+            If Left$(sData, 2) = "ÿþ" Then sData = Mid$(sData, 3)
             
             Open sPath & "backups\" & sFile & ".reg" For Output As #1
                 Print #1, sData
@@ -1330,10 +1330,10 @@ Error:
     ErrorMsg "modBackup_RestoreBackup", Err.Number, Err.Description, "sItem=" & sItem
 End Sub
 Public Sub ListBackups()
-    Dim sPath$, sFile$, vDummy As Variant
+    Dim sPath$, sFile$, vDummy() As String
     Dim sBackup$, sDate$, sTime$
     On Error GoTo Error:
-    sPath = App.Path & IIf(Right(App.Path, 1) = "\", "", "\")
+    sPath = App.Path & IIf(Right$(App.Path, 1) = "\", "", "\")
     sFile = Dir(sPath & "backups\" & "backup*")
     If sFile = vbNullString Then Exit Sub
     frmMain.lstBackups.Clear
@@ -1349,8 +1349,8 @@ Public Sub ListBackups()
                 Line Input #1, sBackup
             Close #1
             
-            sDate = Right(vDummy(1), 2) & "-" & Mid(vDummy(1), 5, 2) & "-" & Mid(vDummy(1), 1, 4)
-            sTime = Left(vDummy(2), 2) & ":" & Mid(vDummy(2), 3, 2) & ":" & Right(vDummy(2), 2)
+            sDate = Right$(vDummy(1), 2) & "-" & Mid$(vDummy(1), 5, 2) & "-" & Mid$(vDummy(1), 1, 4)
+            sTime = Left$(vDummy(2), 2) & ":" & Mid$(vDummy(2), 3, 2) & ":" & Right$(vDummy(2), 2)
             
             sBackup = Format(sDate, "Short Date") & ", " & _
                       Format(sTime, "Long Time") & ": " & _
@@ -1368,16 +1368,16 @@ End Sub
 Public Sub DeleteBackup(sBackup$)
     If sBackup = vbNullString Then
         On Error Resume Next
-        DeleteFile App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "backups\backup-*.*"
+        DeleteFile App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "backups\backup-*.*"
         Exit Sub
     End If
     
     Dim sFile$, sDate$, sTime$
     On Error GoTo Error:
     
-    sDate = Left(sBackup, InStr(sBackup, ", ") - 1)
-    sTime = Mid(sBackup, InStr(sBackup, ", ") + 2)
-    sTime = Left(sTime, InStr(sTime, ": ") - 1)
+    sDate = Left$(sBackup, InStr(sBackup, ", ") - 1)
+    sTime = Mid$(sBackup, InStr(sBackup, ", ") + 2)
+    sTime = Left$(sTime, InStr(sTime, ": ") - 1)
     
     If Not bIsUSADateFormat Then
         sDate = Format(sDate, "yyyymmdd")
@@ -1390,27 +1390,27 @@ Public Sub DeleteBackup(sBackup$)
     sFile = "backup-" & sDate & "-" & sTime & "*.*"
     
     On Error Resume Next
-    DeleteFile App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "backups\" & sFile
+    DeleteFile App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "backups\" & sFile
     Exit Sub
     
 Error:
     ErrorMsg "modBackup_DeleteBackup", Err.Number, Err.Description, "sBackup=" & sBackup
 End Sub
 
-Public Function GetCLSIDOfMSIEExtension(ByVal sName$, bButtonOrMenu As Boolean)
+Public Function GetCLSIDOfMSIEExtension(ByVal sName$, bButtonOrMenu As Boolean) As String
     Dim hKey&, i%, sCLSID$
     On Error GoTo Error:
-    sName = Left(sName, InStr(sName, " (HK") - 1)
+    sName = Left$(sName, InStr(sName, " (HK") - 1)
     
     If RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\Microsoft\Internet Explorer\Extensions", 0, KEY_ENUMERATE_SUB_KEYS, hKey) = 0 Then
-        sCLSID = String(255, 0)
+        sCLSID = String$(255, 0)
         If RegEnumKeyEx(hKey, i, sCLSID, 255, 0, vbNullString, 0, ByVal 0) <> 0 Then
             RegCloseKey hKey
             GetCLSIDOfMSIEExtension = vbNullString
             Exit Function
         End If
         Do
-            sCLSID = Left(sCLSID, InStr(sCLSID, Chr(0)) - 1)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, Chr(0)) - 1)
             If bButtonOrMenu Then
                 If sName = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Internet Explorer\Extensions\" & sCLSID, "ButtonText") Then
                     GetCLSIDOfMSIEExtension = sCLSID
@@ -1423,21 +1423,21 @@ Public Function GetCLSIDOfMSIEExtension(ByVal sName$, bButtonOrMenu As Boolean)
                 End If
             End If
             
-            sCLSID = String(255, 0)
+            sCLSID = String$(255, 0)
             i = i + 1
         Loop Until RegEnumKeyEx(hKey, i, sCLSID, 255, 0, vbNullString, 0, ByVal 0) <> 0
         RegCloseKey hKey
     End If
     
     If RegOpenKeyEx(HKEY_CURRENT_USER, "Software\Microsoft\Internet Explorer\Extensions", 0, KEY_ENUMERATE_SUB_KEYS, hKey) = 0 Then
-        sCLSID = String(255, 0)
+        sCLSID = String$(255, 0)
         If RegEnumKeyEx(hKey, i, sCLSID, 255, 0, vbNullString, 0, ByVal 0) <> 0 Then
             RegCloseKey hKey
             GetCLSIDOfMSIEExtension = vbNullString
             Exit Function
         End If
         Do
-            sCLSID = Left(sCLSID, InStr(sCLSID, Chr(0)) - 1)
+            sCLSID = Left$(sCLSID, InStr(sCLSID, Chr(0)) - 1)
             If bButtonOrMenu Then
                 If sName = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Internet Explorer\Extensions\" & sCLSID, "ButtonText") Then
                     GetCLSIDOfMSIEExtension = sCLSID
@@ -1450,7 +1450,7 @@ Public Function GetCLSIDOfMSIEExtension(ByVal sName$, bButtonOrMenu As Boolean)
                 End If
             End If
             
-            sCLSID = String(255, 0)
+            sCLSID = String$(255, 0)
             i = i + 1
         Loop Until RegEnumKeyEx(hKey, i, sCLSID, 255, 0, vbNullString, 0, ByVal 0) <> 0
         RegCloseKey hKey

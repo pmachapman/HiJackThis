@@ -19,7 +19,7 @@ Begin VB.Form frmEULA
       MultiLine       =   -1  'True
       ScrollBars      =   2  'Vertical
       TabIndex        =   2
-      Text            =   "frmEULAgpl.frx":0000
+      Text            =   "frmEULA.frx":0000
       Top             =   120
       Width           =   6615
    End
@@ -45,6 +45,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+Option Explicit
 Private Sub Command1_Click()
 RegCreateKey HKEY_LOCAL_MACHINE, "Software\TrendMicro\HijackThis"
 frmMain.Show

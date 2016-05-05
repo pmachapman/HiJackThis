@@ -1780,7 +1780,7 @@ Private Sub cmdAnalyze_Click()
         'sProcessList = "Running processes:" & vbCrLf
         'sProcessList = Translate(29) & ":" & vbCrLf
         Do
-            sDummy = Left(uProcess.szExeFile, InStr(uProcess.szExeFile, Chr(0)) - 1)
+            sDummy = Left$(uProcess.szExeFile, InStr(uProcess.szExeFile, Chr(0)) - 1)
             sProcessList = sProcessList & "P01 - " & sDummy & "|"
         Loop Until ProcessNext(hSnap, uProcess) = 0
         CloseHandle hSnap
@@ -1800,14 +1800,14 @@ Private Sub cmdAnalyze_Click()
             hProc = OpenProcess(PROCESS_QUERY_INFORMATION Or PROCESS_VM_READ, 0, lProcesses(i))
             If hProc <> 0 Then
                 lNeeded = 0
-                sProcessName = String(260, 0)
+                sProcessName = String$(260, 0)
                 If EnumProcessModules(hProc, lModules(1), CLng(1024) * 4, lNeeded) <> 0 Then
                     GetModuleFileNameExA hProc, lModules(1), sProcessName, Len(sProcessName)
-                    sProcessName = Left(sProcessName, InStr(sProcessName, Chr(0)) - 1)
+                    sProcessName = Left$(sProcessName, InStr(sProcessName, Chr(0)) - 1)
                     
                     'do some spell-checking
-                    If Left(sProcessName, 1) = "\" Then sProcessName = Mid(sProcessName, 2)
-                    If Left(sProcessName, 3) = "??\" Then sProcessName = Mid(sProcessName, 4)
+                    If Left$(sProcessName, 1) = "\" Then sProcessName = Mid$(sProcessName, 2)
+                    If Left$(sProcessName, 3) = "??\" Then sProcessName = Mid$(sProcessName, 4)
                     sProcessName = Replace(sProcessName, "%SYSTEMROOT%", sWinDir, , , vbTextCompare)
                     sProcessName = Replace(sProcessName, "SYSTEMROOT", sWinDir, , , vbTextCompare)
                     
@@ -1833,7 +1833,7 @@ Private Sub cmdAnalyze_Click()
         
         szLogData = ObfuscateData(szLogData)
         
-        Dim sThisVersion, szBuf As String
+        Dim sThisVersion As String, szBuf As String
         sThisVersion = CStr(App.Major) & "." & CStr(App.Minor) & "." & CStr(App.Revision)
         cmdAnalyze.Caption = "AnalyzeThis"
         ShellExecute Me.hwnd, "open", "http://sourceforge.net/p/hjt/support-requests/", "", "", 1
@@ -1862,7 +1862,7 @@ Dim chrCode As Integer
 Dim i As Long
 szDataOut = "7"
 For i = 1 To Len(szDataIn)
-    chrCode = Asc(Mid(szDataIn, i, 1))
+    chrCode = Asc(Mid$(szDataIn, i, 1))
     szHexVal = Hex$(chrCode)
     szDataOut = szDataOut & StrReverse(szHexVal)
 Next i
@@ -1914,8 +1914,8 @@ Private Sub cmdDeleteService_Click()
     sDisplayName = RegGetString(HKEY_LOCAL_MACHINE, "System\CurrentControlSet\Services\" & sServiceName, "DisplayName")
     If sFile <> vbNullString Then
         'remove double quotes for long pathnames
-        If Left(sFile, 1) = """" Then sFile = Mid(sFile, 2)
-        If Right(sFile, 1) = """" Then sFile = Left(sFile, Len(sFile) - 1)
+        If Left$(sFile, 1) = """" Then sFile = Mid$(sFile, 2)
+        If Right$(sFile, 1) = """" Then sFile = Left$(sFile, Len(sFile) - 1)
         
         'expand aliases
         sFile = Replace(sFile, "%systemroot%", sWinDir, , , vbTextCompare)
@@ -1929,13 +1929,13 @@ Private Sub cmdDeleteService_Click()
         
         'remove parameters
         j = InStrRev(sFile, ".exe", , vbTextCompare) + 3
-        If j < Len(sFile) And j > 3 Then sFile = Left(sFile, j)
+        If j < Len(sFile) And j > 3 Then sFile = Left$(sFile, j)
         
         'add .exe if not specified
         If InStr(1, sFile, ".exe", vbTextCompare) = 0 And _
            InStr(1, sFile, ".sys", vbTextCompare) = 0 Then
             If InStr(sFile, " ") > 0 Then
-                sFile = Left(sFile, InStr(sFile, " ") - 1)
+                sFile = Left$(sFile, InStr(sFile, " ") - 1)
                 sFile = sFile & ".exe"
             End If
         End If
@@ -2061,7 +2061,7 @@ Private Sub cmdMainMenu_Click()
         RegSave "ShowIntroFrame", CStr(chkShowN00bFrame.Value)
         
         If chkConfigStartupScan.Value = 1 Then
-            RegSetStringVal HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Run", "HijackThis startup scan", App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "HijackThis.exe /startupscan"
+            RegSetStringVal HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Run", "HijackThis startup scan", App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "HijackThis.exe /startupscan"
         Else
             RegDelVal HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Run", "HijackThis startup scan"
         End If
@@ -2194,7 +2194,7 @@ Private Sub cmdProcManKill_Click()
     'sMsg = "Are you sure you want to close the selected processes?" & vbCrLf
     For i = 0 To lstProcessManager.ListCount - 1
         If lstProcessManager.Selected(i) Then
-            sMsg = sMsg & Mid(lstProcessManager.List(i), InStr(lstProcessManager.List(i), vbTab) + 1) & vbCrLf
+            sMsg = sMsg & Mid$(lstProcessManager.List(i), InStr(lstProcessManager.List(i), vbTab) + 1) & vbCrLf
         End If
     Next i
     'sMsg = sMsg & vbCrLf & "Any unsaved data in it will be lost."
@@ -2205,14 +2205,14 @@ Private Sub cmdProcManKill_Click()
     For i = 0 To lstProcessManager.ListCount - 1
         If lstProcessManager.Selected(i) Then
             s = lstProcessManager.List(i)
-            s = Left(s, InStr(s, vbTab) - 1)
+            s = Left$(s, InStr(s, vbTab) - 1)
             PauseProcess CLng(s)
         End If
     Next i
     For i = 0 To lstProcessManager.ListCount - 1
         If lstProcessManager.Selected(i) Then
             s = lstProcessManager.List(i)
-            s = Left(s, InStr(s, vbTab) - 1)
+            s = Left$(s, InStr(s, vbTab) - 1)
             If Not bIsWinNT Then
                 KillProcess CLng(s)
             Else
@@ -2225,7 +2225,7 @@ Private Sub cmdProcManKill_Click()
     For i = 0 To lstProcessManager.ListCount - 1
         If lstProcessManager.Selected(i) Then
             s = lstProcessManager.List(i)
-            s = Left(s, InStr(s, vbTab) - 1)
+            s = Left$(s, InStr(s, vbTab) - 1)
             PauseProcess CLng(s), False
         End If
     Next i
@@ -2243,7 +2243,7 @@ Private Sub cmdProcManRefresh_Click()
         lstProcessManager.ListIndex = 0
         If lstProcManDLLs.Visible Then
             s = lstProcessManager.List(lstProcessManager.ListIndex)
-            s = Left(s, InStr(s, vbTab) - 1)
+            s = Left$(s, InStr(s, vbTab) - 1)
             If Not bIsWinNT Then
                 RefreshDLLList CLng(s), lstProcManDLLs
             Else
@@ -2403,11 +2403,11 @@ Private Sub Form_Load()
     
     If Command$ = "/debug" Then
         bDebugMode = True
-        If Dir(App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "debug.log") <> vbNullString Then
-            DeleteFile App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "debug.log"
-            Open App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "debug.log" For Output As #3
+        If Dir(App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "debug.log") <> vbNullString Then
+            DeleteFile App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "debug.log"
+            Open App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "debug.log" For Output As #3
         Else
-            Open App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "debug.log" For Append As #3
+            Open App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "debug.log" For Append As #3
         End If
     End If
     
@@ -2704,7 +2704,7 @@ Private Sub cmdConfig_Click()
         RegSave "ShowIntroFrame", CStr(chkShowN00bFrame.Value)
         
         If chkConfigStartupScan.Value = 1 Then
-            RegSetStringVal HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Run", "HijackThis startup scan", App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "HijackThis.exe /startupscan"
+            RegSetStringVal HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Run", "HijackThis startup scan", App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "HijackThis.exe /startupscan"
         Else
             RegDelVal HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Run", "HijackThis startup scan"
         End If
@@ -2880,7 +2880,7 @@ Private Sub cmdFix_Click()
     For i = 0 To lstResults.ListCount - 1
         If lstResults.Selected(i) = True Then
             lstResults.ListIndex = i
-            Select Case RTrim(Left(lstResults.List(i), 3))
+            Select Case RTrim$(Left$(lstResults.List(i), 3))
                 Case "R0", "R1", "R2": FixRegItem lstResults.List(i)
                 Case "R3":             FixRegistry3Item lstResults.List(i)
                 Case "F0", "F1":       FixFileItem lstResults.List(i)
@@ -2915,7 +2915,7 @@ Private Sub cmdFix_Click()
                            " is not implemented yet. Bug me about it at " & _
                            "www.merijn.org/contact.html, because I should have done it.", _
                            vbInformation, "bad coder - no donuts"
-                    MsgBox "Fixing of " & RTrim(Left(lstResults.List(i), 3)) & _
+                    MsgBox "Fixing of " & RTrim$(Left$(lstResults.List(i), 3)) & _
                            " is not implemented yet.", _
                            vbInformation
             End Select
@@ -2975,7 +2975,7 @@ Private Sub cmdInfo_Click()
     If lstResults.Visible Then
         GetInfo lstResults.List(lstResults.ListIndex)
     ElseIf txtHelp.Visible Then
-        GetInfo LTrim(txtHelp.SelText)
+        GetInfo LTrim$(txtHelp.SelText)
     End If
 End Sub
 
@@ -3079,7 +3079,7 @@ Private Sub cmdScan_Click()
     Else
         Dim sLogFile$, i%
         If bAutoLog Then
-            sLogFile = App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "hijackthis.log"
+            sLogFile = App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "hijackthis.log"
         Else
             sLogFile = CmnDlgSaveFile("Save logfile...", "Log files (*.log)|*.log|All files (*.*)|*.*", "hijackthis.log")
         End If
@@ -3393,8 +3393,8 @@ Private Sub LoadSettings()
     ''    RegSetStringVal HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\App Paths\HijackThis.exe", "Path", App.Path
     ''Else
         If RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\App Paths\HijackThis.exe", "") _
-           <> App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "hijackthis.exe" Then
-            RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\App Paths\HijackThis.exe", "", App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & "hijackthis.exe"
+           <> App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "hijackthis.exe" Then
+            RegSetStringVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\App Paths\HijackThis.exe", "", App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & "hijackthis.exe"
         End If
         If RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\App Paths\HijackThis.exe", "Path") _
            <> App.Path Then
@@ -3434,7 +3434,7 @@ Private Function CreateLogFile$()
         'sProcessList = "Running processes:" & vbCrLf
         sProcessList = Translate(29) & ":" & vbCrLf
         Do
-            sDummy = Left(uProcess.szExeFile, InStr(uProcess.szExeFile, Chr(0)) - 1)
+            sDummy = Left$(uProcess.szExeFile, InStr(uProcess.szExeFile, Chr(0)) - 1)
             sProcessList = sProcessList & sDummy & vbCrLf
         Loop Until ProcessNext(hSnap, uProcess) = 0
         CloseHandle hSnap
@@ -3455,14 +3455,14 @@ Private Function CreateLogFile$()
             hProc = OpenProcess(PROCESS_QUERY_INFORMATION Or PROCESS_VM_READ, 0, lProcesses(i))
             If hProc <> 0 Then
                 lNeeded = 0
-                sProcessName = String(260, 0)
+                sProcessName = String$(260, 0)
                 If EnumProcessModules(hProc, lModules(1), CLng(1024) * 4, lNeeded) <> 0 Then
                     GetModuleFileNameExA hProc, lModules(1), sProcessName, Len(sProcessName)
-                    sProcessName = Left(sProcessName, InStr(sProcessName, Chr(0)) - 1)
+                    sProcessName = Left$(sProcessName, InStr(sProcessName, Chr(0)) - 1)
                     
                     'do some spell-checking
-                    If Left(sProcessName, 1) = "\" Then sProcessName = Mid(sProcessName, 2)
-                    If Left(sProcessName, 3) = "??\" Then sProcessName = Mid(sProcessName, 4)
+                    If Left$(sProcessName, 1) = "\" Then sProcessName = Mid$(sProcessName, 2)
+                    If Left$(sProcessName, 3) = "??\" Then sProcessName = Mid$(sProcessName, 4)
                     sProcessName = Replace(sProcessName, "%SYSTEMROOT%", sWinDir, , , vbTextCompare)
                     sProcessName = Replace(sProcessName, "SYSTEMROOT", sWinDir, , , vbTextCompare)
                     
@@ -3551,7 +3551,7 @@ Private Sub lstProcessManager_Click()
     If lstProcManDLLs.Visible = False Then Exit Sub
     Dim s$
     s = lstProcessManager.List(lstProcessManager.ListIndex)
-    s = Left(s, InStr(s, vbTab) - 1)
+    s = Left$(s, InStr(s, vbTab) - 1)
     If Not bIsWinNT Then
         RefreshDLLList CLng(s), lstProcManDLLs
     Else
@@ -3564,14 +3564,14 @@ End Sub
 Private Sub lstProcessManager_DblClick()
     Dim s$
     s = lstProcessManager.List(lstProcessManager.ListIndex)
-    s = Mid(s, InStr(s, vbTab) + 1)
+    s = Mid$(s, InStr(s, vbTab) + 1)
     ShowFileProperties s
 End Sub
 
 Private Sub lstProcManDLLs_DblClick()
     Dim s$
     s = lstProcManDLLs.List(lstProcManDLLs.ListIndex)
-    s = Mid(s, InStr(s, vbTab) + 1)
+    s = Mid$(s, InStr(s, vbTab) + 1)
     ShowFileProperties s
 End Sub
 

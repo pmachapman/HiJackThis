@@ -56,8 +56,8 @@ Public Function NormalizePath$(sFile$)
             Exit Do
         End If
         
-        EnvVar = Mid(sFile, sValue, sNext - sValue + 1)
-        RealEnvVar = Mid(sFile, sValue + 1, sNext - sValue - 1)
+        EnvVar = Mid$(sFile, sValue, sNext - sValue + 1)
+        RealEnvVar = Mid$(sFile, sValue + 1, sNext - sValue - 1)
         
         If Len(Environ$(RealEnvVar)) > 0 Then
             sFile = Replace(sFile, EnvVar, Environ$(RealEnvVar), sValue, sNext - sValue + 1, vbTextCompare)

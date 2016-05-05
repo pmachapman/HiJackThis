@@ -76,6 +76,7 @@ End Sub
 Public Sub SendData(szUrl As String, szData As String)
 On Error GoTo Error
 Dim szRequest As String
+'FIXIT: Declare 'xmlhttp' with an early-bound data type                                    FixIT90210ae-R1672-R1B8ZE
 Dim xmlhttp As Object
 Dim dataLen As Integer
 Set xmlhttp = CreateObject("MSXML2.ServerXMLHTTP")
@@ -102,6 +103,7 @@ End Sub
 Function GetUrl(szUrl As String) As String
 On Error GoTo Error:
 Dim szRequest As String
+'FIXIT: Declare 'xmlhttp' with an early-bound data type                                    FixIT90210ae-R1672-R1B8ZE
 Dim xmlhttp As Object
 Dim dataLen As Integer
 Set xmlhttp = CreateObject("MSXML2.ServerXMLHTTP")
@@ -127,8 +129,8 @@ End Function
 Public Sub ParseHTTPResponse(szResponse As String)
 
 Dim curPos As Integer
-Dim startIDPos, endIDPos, startDataPos, endDataPos As Integer
-Dim szDataId, szData As String
+Dim startIDPos As Integer, endIDPos As Integer, startDataPos As Integer, endDataPos As Integer
+Dim szDataId As String, szData As String
 
 curPos = 1
 Do While curPos < Len(szResponse)
@@ -154,8 +156,8 @@ Do While curPos < Len(szResponse)
     
     curPos = curPos + endDataPos + 14
     
-    szDataId = Mid(szResponse, startIDPos, endIDPos - startIDPos)
-    szData = Mid(szResponse, startDataPos, endDataPos - startDataPos)
+    szDataId = Mid$(szResponse, startIDPos, endIDPos - startIDPos)
+    szData = Mid$(szResponse, startDataPos, endDataPos - startDataPos)
     
     Select Case szDataId
     Case "REPORT_URL"

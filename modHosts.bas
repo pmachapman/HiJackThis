@@ -3,7 +3,7 @@ Option Explicit
 
 Public Sub ListHostsFile(objList As ListBox, objInfo As Label)
     'custom hosts file handling?
-    Dim sAttr$, iAttr%, sDummy$, vContent As Variant, i&
+    Dim sAttr$, iAttr%, sDummy$, vContent() As String, i&
     On Error Resume Next
     objInfo.Caption = "Loading hosts file, please wait..."
     frmMain.cmdHostsManDel.Enabled = False
@@ -81,7 +81,7 @@ End Sub
 
 Public Sub HostsDeleteLine(objList As ListBox)
     'delete ith line in hosts file (zero-based)
-    Dim iAttr%, sDummy$, vContent As Variant, i&
+    Dim iAttr%, sDummy$, vContent() As String, i&
     On Error Resume Next
     iAttr = GetAttr(sHostsFile)
     If (iAttr And 2048) Then iAttr = iAttr - 2048
@@ -113,7 +113,7 @@ End Sub
 
 Public Sub HostsToggleLine(objList As ListBox)
     'enable/disable ith line in hosts file (zero-based)
-    Dim iAttr%, sDummy$, vContent As Variant, i&
+    Dim iAttr%, sDummy$, vContent() As String, i&
     On Error Resume Next
     iAttr = GetAttr(sHostsFile)
     If (iAttr And 2048) Then iAttr = iAttr - 2048
@@ -138,7 +138,7 @@ Public Sub HostsToggleLine(objList As ListBox)
         For i = 0 To UBound(vContent)
             If .Selected(i) Then
                 If InStr(vContent(i), "#") = 1 Then
-                    vContent(i) = Mid(vContent(i), 2)
+                    vContent(i) = Mid$(vContent(i), 2)
                 Else
                     vContent(i) = "#" & vContent(i)
                 End If

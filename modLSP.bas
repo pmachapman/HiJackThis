@@ -20,7 +20,7 @@ Public Sub CheckLSP()
         
     'check for gaps in LSP chain
     For i = 1 To lNumNameSpace
-        If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)) Then
+        If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)) Then
             'all fine & peachy
         Else
             'broken LSP detected!
@@ -29,7 +29,7 @@ Public Sub CheckLSP()
         End If
     Next i
     For i = 1 To lNumProtocol
-        If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)) Then
+        If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)) Then
             'all fine & dandy
         Else
             'shit, not again!
@@ -40,9 +40,9 @@ Public Sub CheckLSP()
     
     'check all LSP providers are present
     For i = 1 To lNumNameSpace
-        sFile = RegGetString(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i), "LibraryPath")
-        sFile = LCase(Replace(sFile, "%SYSTEMROOT%", sWinDir, , , vbTextCompare))
-        sFile = LCase(Replace(sFile, "%windir%", sWinDir, , , vbTextCompare))
+        sFile = RegGetString(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i), "LibraryPath")
+        sFile = LCase$(Replace(sFile, "%SYSTEMROOT%", sWinDir, , , vbTextCompare))
+        sFile = LCase$(Replace(sFile, "%windir%", sWinDir, , , vbTextCompare))
         If sFile <> vbNullString Then
             If FileExists(sFile) Or _
                FileExists(sWinDir & "\" & sFile) Or _
@@ -58,7 +58,7 @@ Public Sub CheckLSP()
                     sHit = "O10 - Hijacked Internet access by CommonName"
                     If Not IsOnIgnoreList(sHit) Then frmMain.lstResults.AddItem sHit
                 Else
-                    sDummy = Mid(sFile, InStrRev(sFile, "\") + 1)
+                    sDummy = Mid$(sFile, InStrRev(sFile, "\") + 1)
                     If InStr(1, sSafeLSPFiles, sDummy, vbTextCompare) = 0 Or bIgnoreAllWhitelists Then
                         sHit = "O10 - Unknown file in Winsock LSP: " & sFile
                         If Not IsOnIgnoreList(sHit) Then frmMain.lstResults.AddItem sHit
@@ -75,9 +75,9 @@ Public Sub CheckLSP()
     Next i
     
     For i = 1 To lNumProtocol
-        sFile = RegGetFileFromBinary(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i), "PackedCatalogItem")
-        sFile = LCase(Replace(sFile, "%SYSTEMROOT%", sWinDir, , , vbTextCompare))
-        sFile = LCase(Replace(sFile, "%windir%", sWinDir, , , vbTextCompare))
+        sFile = RegGetFileFromBinary(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i), "PackedCatalogItem")
+        sFile = LCase$(Replace(sFile, "%SYSTEMROOT%", sWinDir, , , vbTextCompare))
+        sFile = LCase$(Replace(sFile, "%windir%", sWinDir, , , vbTextCompare))
         If sFile <> vbNullString Then
             If FileExists(sFile) Or _
                FileExists(sWinDir & "\" & sFile) Or _
@@ -93,7 +93,7 @@ Public Sub CheckLSP()
                     sHit = "O10 - Hijacked Internet access by CommonName"
                     If Not IsOnIgnoreList(sHit) Then frmMain.lstResults.AddItem sHit
                 Else
-                    sDummy = LCase(Mid(sFile, InStrRev(sFile, "\") + 1))
+                    sDummy = LCase$(Mid$(sFile, InStrRev(sFile, "\") + 1))
                     If InStr(1, sSafeLSPFiles, sDummy, vbTextCompare) = 0 Or bIgnoreAllWhitelists Then
                         sHit = "O10 - Unknown file in Winsock LSP: " & sFile
                         If Not IsOnIgnoreList(sHit) Then frmMain.lstResults.AddItem sHit
@@ -137,9 +137,9 @@ Public Sub FixLSP()
     
     'check for missing files, delete keys with those
     For i = 1 To lNumNameSpace
-        sFile = RegGetString(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i), "LibraryPath")
-        sFile = LCase(Replace(sFile, "%SYSTEMROOT%", sWinDir, , , vbTextCompare))
-        sFile = LCase(Replace(sFile, "%windir%", sWinDir, , , vbTextCompare))
+        sFile = RegGetString(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i), "LibraryPath")
+        sFile = LCase$(Replace(sFile, "%SYSTEMROOT%", sWinDir, , , vbTextCompare))
+        sFile = LCase$(Replace(sFile, "%windir%", sWinDir, , , vbTextCompare))
         If sFile <> vbNullString And Dir(sFile, vbArchive + vbHidden + vbReadOnly + vbSystem) <> vbNullString Then
             'file ok
             If InStr(1, sFile, "webhdll.dll", vbTextCompare) > 0 Or _
@@ -158,7 +158,7 @@ Public Sub FixLSP()
                     End If
                 End If
                 
-                RegDelKey HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)
+                RegDelKey HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)
                 lNumNameSpace = lNumNameSpace - 1
                 
                 'delete New.Net startup Reg entry
@@ -169,17 +169,17 @@ Public Sub FixLSP()
                 RegDelVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Run", "Zenet"
             End If
         Else
-            If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)) Then
+            If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)) Then
                 lNumNameSpace = lNumNameSpace - 1
             End If
-            RegDelKey HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)
+            RegDelKey HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)
         End If
     Next i
     
     For i = 1 To lNumProtocol
-        sFile = RegGetFileFromBinary(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i), "PackedCatalogItem")
-        sFile = LCase(Replace(sFile, "%SYSTEMROOT%", sWinDir, , , vbTextCompare))
-        sFile = LCase(Replace(sFile, "%windir%", sWinDir, , , vbTextCompare))
+        sFile = RegGetFileFromBinary(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i), "PackedCatalogItem")
+        sFile = LCase$(Replace(sFile, "%SYSTEMROOT%", sWinDir, , , vbTextCompare))
+        sFile = LCase$(Replace(sFile, "%windir%", sWinDir, , , vbTextCompare))
         If sFile <> vbNullString And Dir(sFile, vbArchive + vbHidden + vbReadOnly + vbSystem) <> vbNullString Then
             'file ok
             If InStr(1, sFile, "webhdll.dll", vbTextCompare) > 0 Or _
@@ -198,7 +198,7 @@ Public Sub FixLSP()
                     End If
                 End If
                 
-                RegDelKey HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)
+                RegDelKey HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)
                 lNumNameSpace = lNumNameSpace - 1
                 
                 'delete New.Net startup Reg entry
@@ -211,10 +211,10 @@ Public Sub FixLSP()
                 RegDelVal HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Run\", "Zenet"
             End If
         Else
-            If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)) Then
+            If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)) Then
                 lNumProtocol = lNumProtocol - 1
             End If
-            RegDelKey HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)
+            RegDelKey HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)
         End If
     Next i
     
@@ -222,9 +222,9 @@ Public Sub FixLSP()
     i = 1 'current LSP #
     j = 1 'correct LSP #
     Do
-        If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)) Then
+        If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)) Then
             If i > j Then
-                RegRenameKey HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i), sKeyNameSpace & "\Catalog_Entries\" & String(12 - Len(CStr(j)), "0") & CStr(j)
+                RegRenameKey HKEY_LOCAL_MACHINE, sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i), sKeyNameSpace & "\Catalog_Entries\" & String$(12 - Len(CStr(j)), "0") & CStr(j)
             End If
             j = j + 1
         Else
@@ -242,9 +242,9 @@ Public Sub FixLSP()
     i = 1
     j = 1
     Do
-        If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i)) Then
+        If RegKeyExists(HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i)) Then
             If i > j Then
-                RegRenameKey HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(i)), "0") & CStr(i), sKeyProtocol & "\Catalog_Entries\" & String(12 - Len(CStr(j)), "0") & CStr(j)
+                RegRenameKey HKEY_LOCAL_MACHINE, sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(i)), "0") & CStr(i), sKeyProtocol & "\Catalog_Entries\" & String$(12 - Len(CStr(j)), "0") & CStr(j)
             End If
             j = j + 1
         Else
@@ -283,7 +283,7 @@ Private Sub RegRenameKey(lHive&, sKeyOldName$, sKeyNewName$)
     'where we use it for)
     
     i = 0
-    sName = String(lEnumBufSize, 0)
+    sName = String$(lEnumBufSize, 0)
     lDataLen = lEnumBufSize
     ReDim uData(lDataLen)
     lType = 0
@@ -296,7 +296,7 @@ Private Sub RegRenameKey(lHive&, sKeyOldName$, sKeyNewName$)
     End If
     
     Do
-        sName = Left(sName, InStr(sName, Chr(0)) - 1)
+        sName = Left$(sName, InStr(sName, Chr(0)) - 1)
         Select Case lType
             Case REG_SZ
                 'reconstruct string
@@ -313,10 +313,10 @@ Private Sub RegRenameKey(lHive&, sKeyOldName$, sKeyNewName$)
                 'reconstruct dword
                 lData = 0
                 lData = CLng(Val("&H" & _
-                                 String(2 - Len(Hex(uData(3))), "0") & Hex(uData(3)) & _
-                                 String(2 - Len(Hex(uData(2))), "0") & Hex(uData(2)) & _
-                                 String(2 - Len(Hex(uData(1))), "0") & Hex(uData(1)) & _
-                                 String(2 - Len(Hex(uData(0))), "0") & Hex(uData(0))))
+                                 String$(2 - Len(Hex$(uData(3))), "0") & Hex$(uData(3)) & _
+                                 String$(2 - Len(Hex$(uData(2))), "0") & Hex$(uData(2)) & _
+                                 String$(2 - Len(Hex$(uData(1))), "0") & Hex$(uData(1)) & _
+                                 String$(2 - Len(Hex$(uData(0))), "0") & Hex$(uData(0))))
                 RegSetValueEx hKey2, sName, 0, REG_DWORD, lData, 4
                 'RegDeleteValue hKey, sName
             Case REG_BINARY
@@ -329,7 +329,7 @@ Private Sub RegRenameKey(lHive&, sKeyOldName$, sKeyNewName$)
         End Select
         
         i = i + 1
-        sName = String(lEnumBufSize, 0)
+        sName = String$(lEnumBufSize, 0)
         lDataLen = lEnumBufSize
         ReDim uData(lDataLen)
         lType = 0

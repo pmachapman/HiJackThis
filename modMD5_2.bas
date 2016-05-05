@@ -62,7 +62,7 @@ Public Function GetFileMD5(sFilename$, Optional lFileSize&) As String
                     If CryptGetHashParam(hHash, HP_HASHVAL, uMD5(0), UBound(uMD5) + 1, 0) <> 0 Then
                         UpdateMD5Progress 7, 8
                         For i = 0 To lMD5Len - 1
-                            sMD5 = sMD5 & Right("0" & Hex(uMD5(i)), 2)
+                            sMD5 = sMD5 & Right$("0" & Hex$(uMD5(i)), 2)
                         Next i
                     End If
                 End If
@@ -99,12 +99,12 @@ Public Function GetFileFromAutostart$(sAutostart$, Optional bGetMD5 As Boolean =
     '* surrounding quotes
     '* arguments (possibly files)
     
-    If Left(sDummy, 1) = """" Then
+    If Left$(sDummy, 1) = """" Then
         'has quotes
         'stripping like this also removes any
         'arguments, so a path means it's finished
-        sDummy = Mid(sDummy, 2)
-        sDummy = Left(sDummy, InStr(sDummy, """") - 1)
+        sDummy = Mid$(sDummy, 2)
+        sDummy = Left$(sDummy, InStr(sDummy, """") - 1)
         
         If InStr(sDummy, "\") > 0 Then
             GoTo GetMD5:
@@ -115,8 +115,8 @@ Public Function GetFileFromAutostart$(sAutostart$, Optional bGetMD5 As Boolean =
     
     If FileExists(sDummy) Then GoTo GetMD5
     
-    If LCase(Right(sDummy, 4)) <> ".exe" And _
-       LCase(Right(sDummy, 4)) <> ".com" Then
+    If LCase$(Right$(sDummy, 4)) <> ".exe" And _
+       LCase$(Right$(sDummy, 4)) <> ".com" Then
         'has arguments, or no extension
         If InStr(sDummy, " ") = 0 Then
             'only one word, so no extension
@@ -127,11 +127,11 @@ Public Function GetFileFromAutostart$(sAutostart$, Optional bGetMD5 As Boolean =
             GoTo GetMD5:
         Else
             'multiple words, the first is the program
-            If FileExists(Left(sDummy, InStr(sDummy, " ") - 1)) Then
-                sDummy = Left(sDummy, InStr(sDummy, " ") - 1)
+            If FileExists(Left$(sDummy, InStr(sDummy, " ") - 1)) Then
+                sDummy = Left$(sDummy, InStr(sDummy, " ") - 1)
                 sDummy = GetLongPath(sDummy)
             Else
-                sDummy = Left(sDummy, InStrRev(sDummy, " ") - 1)
+                sDummy = Left$(sDummy, InStrRev(sDummy, " ") - 1)
                 sDummy = GetLongPath(sDummy)
             End If
             GoTo GetMD5:

@@ -148,7 +148,7 @@ Sub Main()
     'End
     
     On Error GoTo Error:
-    sPath = App.Path & IIf(Right(App.Path, 1) = "\", "", "\")
+    sPath = App.Path & IIf(Right$(App.Path, 1) = "\", "", "\")
         
     ' CHANGE THIS OR DIE
     '=======================
@@ -332,14 +332,14 @@ Sub Main()
     If MsgBox(sMsg, vbQuestion + vbYesNo, "StartupList") = vbNo Then Exit Sub
     
     lTicks = GetTickCount()
-    sWinDir = String(255, 0)
-    sWinDir = Left(sWinDir, GetWindowsDirectory(sWinDir, 255))
+    sWinDir = String$(255, 0)
+    sWinDir = Left$(sWinDir, GetWindowsDirectory(sWinDir, 255))
     sWinSysDir = sWinDir & "\" & IIf(bIsWinNT, "system32", "system")
     
     'header
     sReport = "StartupList report, " & CStr(Date) & ", " & CStr(Time) & vbCrLf
     sReport = sReport & "StartupList version: " & sSLVersion & vbCrLf
-    sReport = sReport & "Started from : " & App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & App.EXEName & ".EXE" & vbCrLf
+    sReport = sReport & "Started from : " & App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & App.EXEName & ".EXE" & vbCrLf
     sReport = sReport & "Detected: " & GetWindowsVersion & vbCrLf
     sReport = sReport & "Detected: " & GetMSIEVersion & vbCrLf
     
@@ -350,7 +350,7 @@ Sub Main()
     sReport = sReport & IIf(bForceWinNT, "* Forcing include of WinNT-only sections" & vbCrLf, "")
     sReport = sReport & IIf(bForceAll, "* Forcing include of all possible sections" & vbCrLf, "")
     sReport = sReport & IIf(bFull, "* Showing rarely important sections" & vbCrLf, "")
-    sReport = sReport & String(50, "=") & vbCrLf & vbCrLf
+    sReport = sReport & String$(50, "=") & vbCrLf & vbCrLf
     
     '====================
     '=== checks below ===
@@ -429,7 +429,7 @@ Sub Main()
     sReport = sReport & "   /history  - to list version history only" & vbCrLf
     
     sReport = Replace(sReport, "xXxXx", Format(Len(sReport), "###,###,###"))
-    sReport = Left(sReport, Len(sReport) - 2)
+    sReport = Left$(sReport, Len(sReport) - 2)
     
     'add/remove HTML tags etc
     HTMLize
@@ -503,8 +503,8 @@ Private Sub EnumKeys(lRootKey&, sAutorunKey$, bNT As Boolean, iSection%)
         End If
     End If
     i = 0
-    sData = String(lEnumBufSize, 0)
-    sValue = String(lEnumBufSize, 0)
+    sData = String$(lEnumBufSize, 0)
+    sValue = String$(lEnumBufSize, 0)
     If RegEnumValue(hKey, i, sValue, Len(sValue), 0, lType, ByVal sData, Len(sData)) <> 0 Then
         sResult = sResult & "*No values found*" & vbCrLf
         GoTo EndOfSub
@@ -513,12 +513,12 @@ Private Sub EnumKeys(lRootKey&, sAutorunKey$, bNT As Boolean, iSection%)
         If lType = REG_SZ Then
             bInteresting = True
             sData = TrimNull(sData)
-            sValue = Left(sValue, InStr(sValue, Chr(0)) - 1)
+            sValue = Left$(sValue, InStr(sValue, Chr(0)) - 1)
             If sValue = vbNullString Then sValue = "(Default)"
             sResult = sResult & sValue & " = " & sData & vbCrLf
         End If
-        sData = String(lEnumBufSize, 0)
-        sValue = String(lEnumBufSize, 0)
+        sData = String$(lEnumBufSize, 0)
+        sValue = String$(lEnumBufSize, 0)
         i = i + 1
     Loop Until RegEnumValue(hKey, i, sValue, Len(sValue), 0, lType, ByVal sData, Len(sData)) <> 0
 
@@ -528,14 +528,14 @@ EndOfSub:
         sVerbose = "This lists programs that run Registry keys marked by Windows as" & vbCrLf
         sVerbose = sVerbose & "'Autostart key'. To the left are values that are used to clarify what" & vbCrLf
         sVerbose = sVerbose & "program they belong to, to the right the program file that is started." & vbCrLf
-        If Right(sAutorunKey, 4) = "Once" Then
+        If Right$(sAutorunKey, 4) = "Once" Then
             sVerbose = sVerbose & "The values in the 'RunOnce', 'RunOnceEx' and 'RunServicesOnce' keys" & vbCrLf
             sVerbose = sVerbose & "are run once and then deleted by Windows." & vbCrLf
         End If
         sResult = sResult & vbCrLf & sVerbose
     End If
     sResult = sResult & vbCrLf
-    sResult = sResult & String(50, "-")
+    sResult = sResult & String$(50, "-")
     sResult = sResult & vbCrLf & vbCrLf
     
     If bInteresting Or bComplete Then sReport = sReport & sResult
@@ -543,7 +543,7 @@ EndOfSub:
     
 Error:
     RegCloseKey hKey
-    Dim sRoot
+    Dim sRoot As String
     Select Case lRootKey
         Case HKEY_CURRENT_USER: sRoot = "HKLCU"
         Case HKEY_LOCAL_MACHINE: sRoot = "HKLM"
@@ -555,7 +555,7 @@ Private Sub CheckClasses(sSubKey$, iSection%)
     'sub applies to all windows versions
     
     Dim sResult$
-    sSubKey = UCase(sSubKey)
+    sSubKey = UCase$(sSubKey)
     sResult = sResult & "[tag" & iSection & "]File association entry for " & sSubKey & ":[/tag" & iSection & "]" & vbCrLf
     
     Dim hKey&, i%, sData$, bInteresting As Boolean
@@ -579,15 +579,15 @@ Private Sub CheckClasses(sSubKey$, iSection%)
     
     Select Case sSubKey
         Case ".EXE", ".COM", ".BAT", ".PIF"
-            If LCase(sData) <> """%1"" %*" Then bInteresting = True
+            If LCase$(sData) <> """%1"" %*" Then bInteresting = True
         Case ".SCR":
-            If LCase(sData) <> """%1"" /s" And _
-               LCase(sData) <> """%1"" /s ""%3""" Then bInteresting = True
+            If LCase$(sData) <> """%1"" /s" And _
+               LCase$(sData) <> """%1"" /s ""%3""" Then bInteresting = True
         Case ".HTA":
-            If LCase(sData) <> LCase(sWinDir) & "\system" & IIf(bIsWin9x, "", "32") & "\mshta.exe ""%1"" %*" Then bInteresting = True
+            If LCase$(sData) <> LCase$(sWinDir) & "\system" & IIf(bIsWin9x, "", "32") & "\mshta.exe ""%1"" %*" Then bInteresting = True
         Case ".TXT":
-            If LCase(sData) <> sWinDir & "\notepad.exe %1" And _
-               LCase(sData) <> "%systemroot%\system32\notepad.exe %1" Then bInteresting = True
+            If LCase$(sData) <> sWinDir & "\notepad.exe %1" And _
+               LCase$(sData) <> "%systemroot%\system32\notepad.exe %1" Then bInteresting = True
         Case Else
             MsgBox "jackass coder  - no donuts"
     End Select
@@ -607,7 +607,7 @@ EndOfSub:
         sResult = sResult & vbCrLf & sVerbose & vbCrLf
     End If
     If bInteresting Or bComplete Then
-        sReport = sReport & sResult & vbCrLf & String(50, "-") & vbCrLf & vbCrLf
+        sReport = sReport & sResult & vbCrLf & String$(50, "-") & vbCrLf & vbCrLf
     End If
     Exit Sub
     
@@ -627,14 +627,14 @@ Private Sub CheckWinINI()
     Dim sRet$
     sRet = IniGetString("win.ini", "windows", "load", False)
     'If Not IsRegVal404(sRet) Then
-    If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+    If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
         bInteresting = True
     End If
     sResult = sResult & "load=" & sRet & vbCrLf
     
     sRet = IniGetString("win.ini", "windows", "run", False)
     'If Not IsRegVal404(sRet) Then
-    If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+    If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
         bInteresting = True
     End If
     sResult = sResult & "run=" & sRet & vbCrLf
@@ -645,75 +645,75 @@ Private Sub CheckWinINI()
         
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows NT\CurrentVersion\WinLogon", "load")
         'sRet = INIGetString("win.ini", "windows", "load", True)
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKLM\..\Windows NT\CurrentVersion\WinLogon: load=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows NT\CurrentVersion\WinLogon", "run")
         'sRet = INIGetString("win.ini", "windows", "run", True)
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKLM\..\Windows NT\CurrentVersion\WinLogon: run=" & sRet & vbCrLf
         
         'the below 6 probably don't work, but it's just in case
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\WinLogon", "load")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKLM\..\Windows\CurrentVersion\WinLogon: load=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\WinLogon", "run")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKLM\..\Windows\CurrentVersion\WinLogon: run=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\WinLogon", "load")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKCU\..\Windows NT\CurrentVersion\WinLogon: load=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\WinLogon", "run")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKCU\..\Windows NT\CurrentVersion\WinLogon: run=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\WinLogon", "load")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKCU\..\Windows\CurrentVersion\WinLogon: load=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\WinLogon", "run")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKCU\..\Windows\CurrentVersion\WinLogon: run=" & sRet & vbCrLf
         
         'this is a new one
         sRet = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\Windows", "load")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKCU\..\Windows NT\CurrentVersion\Windows: load=" & sRet & vbCrLf
         sRet = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows NT\CurrentVersion\Windows", "run")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKCU\..\Windows NT\CurrentVersion\Windows: run=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows NT\CurrentVersion\Windows", "load")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKLM\..\Windows NT\CurrentVersion\Windows: load=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows NT\CurrentVersion\Windows", "run")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKLM\..\Windows NT\CurrentVersion\Windows: run=" & sRet & vbCrLf
@@ -721,7 +721,7 @@ Private Sub CheckWinINI()
         'this shouldn't really belong here, but anyway..
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows NT\CurrentVersion\Windows", "AppInit_DLLs")
         sRet = Replace(sRet, Chr(0), "|")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKLM\..\Windows NT\CurrentVersion\Windows: AppInit_DLLs=" & sRet & vbCrLf
@@ -737,7 +737,7 @@ Private Sub CheckWinINI()
         sResult = sResult & vbCrLf & sVerbose & vbCrLf
     End If
     sResult = sResult & vbCrLf
-    sResult = sResult & String(50, "-")
+    sResult = sResult & String$(50, "-")
     sResult = sResult & vbCrLf & vbCrLf
     
     If bInteresting Or bComplete Then sReport = sReport & sResult
@@ -756,19 +756,19 @@ Private Sub CheckSystemINI()
     
     On Error GoTo Error:
     sRet = IniGetString("system.ini", "boot", "shell", False)
-    If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString = 0 Then
+    If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString = 0 Then
         bInteresting = True
     End If
     sResult = sResult & "Shell=" & sRet & vbCrLf
     
     sRet = IniGetString("system.ini", "boot", "SCRNSAVE.EXE", False)
-    If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString = 0 Then
+    If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString = 0 Then
         bInteresting = True
     End If
     sResult = sResult & "SCRNSAVE.EXE=" & sRet & vbCrLf
     
     sRet = IniGetString("system.ini", "boot", "drivers", False)
-    If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString = 0 Then
+    If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString = 0 Then
         bInteresting = True
     End If
     sResult = sResult & "drivers=" & sRet & vbCrLf
@@ -779,21 +779,21 @@ Private Sub CheckSystemINI()
         'screw this, I know where it is anyway
         'sRet = INIGetString("system.ini", "boot", "shell", True)
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows NT\CurrentVersion\WinLogon", "shell")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "Shell=" & sRet & vbCrLf
         
         'sRet = INIGetString("system.ini", "boot", "SCRNSAVE.EXE", True)
         sRet = RegGetString(HKEY_CURRENT_USER, "Control Panel\Desktop", "SCRNSAVE.EXE")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "SCRNSAVE.EXE=" & sRet & vbCrLf
         
         'doesn't appear in IniFileMapping ?
         sRet = IniGetString("system.ini", "boot", "drivers", True)
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "drivers=" & sRet & vbCrLf
@@ -801,13 +801,13 @@ Private Sub CheckSystemINI()
         'got an extra one from policies key!
         sResult = sResult & vbCrLf & "Policies Shell key:" & vbCrLf & vbCrLf
         sRet = RegGetString(HKEY_CURRENT_USER, "Software\Microsoft\Windows\CurrentVersion\Policies\System", "Shell")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKCU\..\Policies: Shell=" & sRet & vbCrLf
         
         sRet = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Policies\System", "Shell")
-        If InStr(sRet, "not found*") = 0 And Trim(sRet) <> vbNullString Then
+        If InStr(sRet, "not found*") = 0 And Trim$(sRet) <> vbNullString Then
             bInteresting = True
         End If
         sResult = sResult & "HKLM\..\Policies: Shell=" & sRet & vbCrLf
@@ -825,7 +825,7 @@ Private Sub CheckSystemINI()
         sResult = sResult & vbCrLf & sVerbose
     End If
     sResult = sResult & vbCrLf
-    sResult = sResult & String(50, "-")
+    sResult = sResult & String$(50, "-")
     sResult = sResult & vbCrLf & vbCrLf
     
     If bInteresting Or bComplete Then sReport = sReport & sResult
@@ -847,13 +847,13 @@ Private Sub EnumBAT(sFile$)
     Dim sResult$, bInteresting As Boolean
     On Error GoTo Error:
     If sFile = "c:\autoexec.bat" Then
-        sResult = sResult & "[tag41]" & UCase(sFile) & " listing:[/tag41]" & vbCrLf & vbCrLf
+        sResult = sResult & "[tag41]" & UCase$(sFile) & " listing:[/tag41]" & vbCrLf & vbCrLf
     ElseIf sFile = "c:\config.sys" And bFull Then
-        sResult = sResult & "[tag42]" & UCase(sFile) & " listing:[/tag42]" & vbCrLf & vbCrLf
+        sResult = sResult & "[tag42]" & UCase$(sFile) & " listing:[/tag42]" & vbCrLf & vbCrLf
     ElseIf sFile = sWinDir & "\winstart.bat" Then
-        sResult = sResult & "[tag43]" & UCase(sFile) & " listing:[/tag43]" & vbCrLf & vbCrLf
+        sResult = sResult & "[tag43]" & UCase$(sFile) & " listing:[/tag43]" & vbCrLf & vbCrLf
     ElseIf sFile = sWinDir & "\dosstart.bat" And bFull Then
-        sResult = sResult & "[tag44]" & UCase(sFile) & " listing:[/tag44]" & vbCrLf & vbCrLf
+        sResult = sResult & "[tag44]" & UCase$(sFile) & " listing:[/tag44]" & vbCrLf & vbCrLf
     Else
         Exit Sub
     End If
@@ -873,10 +873,10 @@ Private Sub EnumBAT(sFile$)
     Open sFile For Input As #1
         Do
             Line Input #1, sLine
-            If Trim(sLine) <> "" Then
-                If Left(sLine, 1) = "@" Then sLine = Mid(sLine, 2)
+            If Trim$(sLine) <> "" Then
+                If Left$(sLine, 1) = "@" Then sLine = Mid$(sLine, 2)
                 If InStr(sLine, vbTab) > 0 Then sLine = Replace(sLine, vbTab, " ")
-                If UCase(Trim(sLine)) <> "REM" And _
+                If UCase$(Trim$(sLine)) <> "REM" And _
                    (InStr(1, sLine, "REM ", vbTextCompare) <> 1 And _
                    (InStr(1, sLine, "ECHO ", vbTextCompare) <> 1) Or _
                     InStr(sLine, ">") > 0) Or _
@@ -891,23 +891,23 @@ Private Sub EnumBAT(sFile$)
     
 EndOfSub:
     If bVerbose Then
-        If InStr(LCase(sFile), "c:\autoexec.bat") > 0 Then
+        If InStr(LCase$(sFile), "c:\autoexec.bat") > 0 Then
             sVerbose = "Autoexec.bat is the very first file to autostart when the computer" & vbCrLf
             sVerbose = sVerbose & "starts, it is a leftover from DOS and older Windows versions." & vbCrLf
             sVerbose = sVerbose & "Windows NT, Windows ME, Windows 2000 and Windows XP don't use this" & vbCrLf
             sVerbose = sVerbose & "file. It is generally used by virusscanners to scan files before" & vbCrLf
             sVerbose = sVerbose & "Windows starts."
             sResult = sResult & vbCrLf & sVerbose & vbCrLf
-        ElseIf InStr(LCase(sFile), "c:\config.sys") > 0 Then
+        ElseIf InStr(LCase$(sFile), "c:\config.sys") > 0 Then
             sVerbose = "Config.sys loads device drivers for DOS, and is rarely used in" & vbCrLf & _
                        "Windows versions newer than Windows 95. Originally it loaded" & vbCrLf & _
                        "drivers for legacy sound cards and such."
             sResult = sResult & vbCrLf & sVerbose & vbCrLf
-        ElseIf InStr(LCase(sFile), "winstart.bat") > 0 Then
+        ElseIf InStr(LCase$(sFile), "winstart.bat") > 0 Then
             sVerbose = "Winstart.bat loads just before the Windows shell, and is used for" & vbCrLf
             sVerbose = sVerbose & "starting things like soundcard drivers, mouse drivers. Rarely used."
             sResult = sResult & vbCrLf & sVerbose & vbCrLf
-        ElseIf InStr(LCase(sFile), "dosstart.bat") > 0 Then
+        ElseIf InStr(LCase$(sFile), "dosstart.bat") > 0 Then
             sVerbose = "Dosstart.bat loads if you select 'MS-DOS Prompt' from the Startup" & vbCrLf
             sVerbose = sVerbose & "menu when the computer is starting, or if you select 'Restart in" & vbCrLf
             sVerbose = sVerbose & "MS-DOS Mode' from the Shutdown menu in Windows. Mostly used for" & vbCrLf
@@ -916,7 +916,7 @@ EndOfSub:
         End If
     End If
     sResult = sResult & vbCrLf
-    sResult = sResult & String(50, "-")
+    sResult = sResult & String$(50, "-")
     sResult = sResult & vbCrLf & vbCrLf
     
     If bInteresting Or bComplete Then sReport = sReport & sResult
@@ -940,9 +940,9 @@ Private Sub EnumWininit(sIniFile$)
     On Error GoTo Error:
     
     If sIniFile = "wininit.ini" Then
-        sResult = sResult & "[tag39]" & sWinDir & "\" & UCase(sIniFile) & " listing:[/tag39]" & vbCrLf
+        sResult = sResult & "[tag39]" & sWinDir & "\" & UCase$(sIniFile) & " listing:[/tag39]" & vbCrLf
     ElseIf sIniFile = "wininit.bak" Then
-        sResult = sResult & "[tag40]" & sWinDir & "\" & UCase(sIniFile) & " listing:[/tag40]" & vbCrLf
+        sResult = sResult & "[tag40]" & sWinDir & "\" & UCase$(sIniFile) & " listing:[/tag40]" & vbCrLf
     End If
     
     lFileHandle = CreateFile(sWinDir & "\" & sIniFile, GENERIC_WRITE, FILE_SHARE_READ Or FILE_SHARE_WRITE, ByVal 0, OPEN_EXISTING, 0, 0)
@@ -973,7 +973,7 @@ Private Sub EnumWininit(sIniFile$)
     Open sWinDir & "\" & sIniFile For Input As #1
         Do
             Line Input #1, sLine
-            If Trim(sLine) <> "" Then sResult = sResult & sLine & vbCrLf
+            If Trim$(sLine) <> "" Then sResult = sResult & sLine & vbCrLf
         Loop Until EOF(1)
     Close #1
     On Error GoTo 0:
@@ -987,7 +987,7 @@ EndOfSub:
         sVerbose = sVerbose & "WININIT.INI is renamed to WININIT.BAK."
         sResult = sResult & vbCrLf & sVerbose & vbCrLf
     End If
-    sResult = sResult & vbCrLf & String(50, "-") & vbCrLf & vbCrLf
+    sResult = sResult & vbCrLf & String$(50, "-") & vbCrLf & vbCrLf
     
     If bInteresting Or bComplete Then sReport = sReport & sResult
     Exit Sub
@@ -1027,10 +1027,10 @@ Private Sub CheckAutoStartFolders()
         sVerbose = sVerbose & "The location of these folders is set in the Registry." & vbCrLf & vbCrLf
         sResult = sResult & sVerbose
     End If
-    sResult = sResult & String(50, "-")
+    sResult = sResult & String$(50, "-")
     sResult = sResult & vbCrLf & vbCrLf
     
-    If sResult <> sVerbose & String(50, "-") & vbCrLf & vbCrLf Then
+    If sResult <> sVerbose & String$(50, "-") & vbCrLf & vbCrLf Then
         sReport = sReport & "[tag2]Listing of startup folders:[/tag2]" & vbCrLf & vbCrLf
         sReport = sReport & sResult
     End If
@@ -1060,7 +1060,7 @@ Private Function ListFiles$(lRootKey&, sSubKey$, sValue$, sName$)
         GoTo EndOfFunction
     End If
     
-    If UCase(Dir(sData & "\NUL")) = "NUL" Then
+    If UCase$(Dir(sData & "\NUL")) = "NUL" Then
         sResult = sResult & "[" & sData & "]" & vbCrLf
         sFile = Dir(sData & "\*.*", vbArchive + vbHidden + vbReadOnly + vbSystem)
         If sFile = vbNullString Then
@@ -1068,7 +1068,7 @@ Private Function ListFiles$(lRootKey&, sSubKey$, sValue$, sName$)
             GoTo EndOfFunction
         End If
         Do
-            If LCase(sFile) <> "desktop.ini" Then
+            If LCase$(sFile) <> "desktop.ini" Then
                 sResult = sResult & sFile & GetFileFromShortCut(sData & "\" & sFile) & vbCrLf
                 bInteresting = True
             End If
@@ -1086,7 +1086,7 @@ EndOfFunction:
     Exit Function
     
 Error:
-    Dim sRoot
+    Dim sRoot As String
     Select Case lRootKey
         Case HKEY_CURRENT_USER: sRoot = "HKCU"
         Case HKEY_LOCAL_MACHINE: sRoot = "HKLM"
@@ -1157,7 +1157,7 @@ Private Sub CheckExplorer()
         sVerbose = sVerbose & "infection with the W32@Trojan.Dlder virus."
         sReport = sReport & vbCrLf & sVerbose & vbCrLf
     End If
-    sReport = sReport & vbCrLf & String(50, "-") & vbCrLf & vbCrLf
+    sReport = sReport & vbCrLf & String$(50, "-") & vbCrLf & vbCrLf
     Exit Sub
     
 Error:
@@ -1184,7 +1184,7 @@ Private Sub EnumStubPaths()
     End If
     
     i = 0
-    sVal = String(255, 0)
+    sVal = String$(255, 0)
     'Start enumerating subkeys of 'Installed Components' key
     If RegEnumKey(hKey, i, sVal, 255) <> 0 Then
         sResult = sResult & "*No subkeys found*" & vbCrLf
@@ -1192,13 +1192,13 @@ Private Sub EnumStubPaths()
         GoTo EndOfSub
     End If
     Do
-        sVal = Left(sVal, InStr(sVal, Chr(0)) - 1)
+        sVal = Left$(sVal, InStr(sVal, Chr(0)) - 1)
         'Try to open each enumerated subkey
         sData = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Active Setup\Installed Components\" & sVal, "StubPath")
         If sData <> vbNullString And Not IsRegVal404(sData) Then
-            If LCase(Left(sData, 10)) <> "rundll.exe" And _
-               LCase(Left(sData, 8)) <> "rundll32.exe" And _
-               LCase(Left(sData, 9)) <> "rundll32 " And _
+            If LCase$(Left$(sData, 10)) <> "rundll.exe" And _
+               LCase$(Left$(sData, 8)) <> "rundll32.exe" And _
+               LCase$(Left$(sData, 9)) <> "rundll32 " And _
                InStr(sData, "LaunchINFSection") = 0 And _
                InStr(sData, "InstallHinfSection") = 0 Or _
                bComplete Then
@@ -1217,7 +1217,7 @@ Private Sub EnumStubPaths()
         End If
         
         i = i + 1
-        sVal = String(255, 0)
+        sVal = String$(255, 0)
     Loop Until RegEnumKey(hKey, i, sVal, 255) <> 0
     
 EndOfSub:
@@ -1231,7 +1231,7 @@ EndOfSub:
         sVerbose = sVerbose & "RUNDLL.EXE or RUNDLL32.EXE, so a suspicious key is not hard to find." & vbCrLf
         sResult = sResult & sVerbose & vbCrLf
     End If
-    sResult = sResult & String(50, "-") & vbCrLf & vbCrLf
+    sResult = sResult & String$(50, "-") & vbCrLf & vbCrLf
     
     If bInteresting Or bComplete Then sReport = sReport & sResult
     Exit Sub
@@ -1259,23 +1259,23 @@ Private Sub EnumICQAgentProgs()
     
     'Start enumerating subkeys
     i = 0
-    sVal = String(255, 0)
+    sVal = String$(255, 0)
     If RegEnumKey(hKey, i, sVal, 255) <> 0 Then
         sResult = sResult & "*No subkeys found*" & vbCrLf
         GoTo EndOfSub
     End If
     Do
-        sVal = Left(sVal, InStr(sVal, Chr(0)) - 1)
+        sVal = Left$(sVal, InStr(sVal, Chr(0)) - 1)
         'Try to open each enumerated subkey
         
         sData = RegGetString(HKEY_CURRENT_USER, "Software\Mirabilis\ICQ\Agent\Apps\" & sVal, "Path")
         If sData <> vbNullString Then bInteresting = True
-        sResult = sResult & sData & IIf(Right(sData, 1) = "\", "", "\")
+        sResult = sResult & sData & IIf(Right$(sData, 1) = "\", "", "\")
         sData = RegGetString(HKEY_CURRENT_USER, "Software\Mirabilis\ICQ\Agent\Apps\" & sVal, "Startup")
         sResult = sResult & sData & vbCrLf
         
         i = i + 1
-        sVal = String(255, 0)
+        sVal = String$(255, 0)
     Loop Until RegEnumKey(hKey, i, sVal, 255) <> 0
         
 EndOfSub:
@@ -1287,7 +1287,7 @@ EndOfSub:
         sVerbose = sVerbose & "under 'Connection' for a button labelled 'Edit Launch List'." & vbCrLf
         sResult = sResult & vbCrLf & sVerbose
     End If
-    sResult = sResult & vbCrLf & String(50, "-") & vbCrLf & vbCrLf
+    sResult = sResult & vbCrLf & String$(50, "-") & vbCrLf & vbCrLf
     
     If bInteresting Or bComplete Then sReport = sReport & sResult
     Exit Sub
@@ -1317,39 +1317,39 @@ Private Sub EnumExKeys(lHive&, ByVal sKey$, bWinNT As Boolean, iNumber%)
     
     'Start enumerating subkeys
     i = 0
-    sVal = String(255, 0)
+    sVal = String$(255, 0)
     If RegEnumKey(hKey, i, sVal, 255) <> 0 Then
         sResult = sResult & "*No subkeys found*" & vbCrLf
         GoTo EndOfSub
     End If
     Do
         'Open each subkey...
-        sVal = Left(sVal, InStr(sVal, Chr(0)) - 1)
+        sVal = Left$(sVal, InStr(sVal, Chr(0)) - 1)
         If RegOpenKeyEx(lHive, sKey & "\" & sVal, 0, KEY_QUERY_VALUE, hSubKey) = 0 Then
             sResult = sResult & vbCrLf & "[" & sVal & "]" & vbCrLf
             'And enumerate values in it
             j = 0
-            sVal = String(lEnumBufSize, 0)
-            sData = String(lEnumBufSize, 0)
+            sVal = String$(lEnumBufSize, 0)
+            sData = String$(lEnumBufSize, 0)
             If RegEnumValue(hSubKey, j, sVal, Len(sVal), 0, lType, ByVal sData, Len(sData)) <> 0 Then
                 sResult = sResult & "*No values found*" & vbCrLf
             Else
                 Do
                     bInteresting = True
-                    sVal = Left(sVal, InStr(sVal, Chr(0)) - 1)
+                    sVal = Left$(sVal, InStr(sVal, Chr(0)) - 1)
                     sResult = sResult & sVal & " = "
                     sData = TrimNull(sData)
                     sResult = sResult & sData & vbCrLf
                     j = j + 1
-                    sVal = String(lEnumBufSize, 0)
-                    sData = String(lEnumBufSize, 0)
+                    sVal = String$(lEnumBufSize, 0)
+                    sData = String$(lEnumBufSize, 0)
                 Loop Until RegEnumValue(hSubKey, j, sVal, Len(sVal), 0, lType, ByVal sData, Len(sData)) <> 0
             End If
             sResult = sResult '& vbCrLf
             RegCloseKey hSubKey
         End If
         i = i + 1
-        sVal = String(255, 0)
+        sVal = String$(255, 0)
     Loop Until RegEnumKey(hKey, i, sVal, 255) <> 0
     RegCloseKey hKey
     
@@ -1361,7 +1361,7 @@ EndOfSub:
         sResult = sResult & vbCrLf & sVerbose & vbCrLf
     End If
     RegCloseKey hKey
-    sResult = sResult & vbCrLf & String(50, "-") & vbCrLf & vbCrLf
+    sResult = sResult & vbCrLf & String$(50, "-") & vbCrLf & vbCrLf
     
     If bInteresting Or bComplete Then sReport = sReport & sResult
     Exit Sub
@@ -1398,7 +1398,7 @@ Win9xMethod:
     End If
     
     Do
-        sDummy = Left(uProcess.szExeFile, InStr(uProcess.szExeFile, Chr(0)) - 1)
+        sDummy = Left$(uProcess.szExeFile, InStr(uProcess.szExeFile, Chr(0)) - 1)
         If Not bIsWinNT Then
             sReport = sReport & sDummy & vbCrLf
         Else
@@ -1436,12 +1436,12 @@ WinNTMethod:
         hProc = OpenProcess(PROCESS_QUERY_INFORMATION Or PROCESS_VM_READ, 0, lProcesses(i))
         If hProc <> 0 Then
             lNeeded = 0
-            sProcessName = String(260, 0)
+            sProcessName = String$(260, 0)
             If EnumProcessModules(hProc, lModules(1), CLng(1024) * 4, lNeeded) <> 0 Then
                 GetModuleFileNameExA hProc, lModules(1), sProcessName, Len(sProcessName)
                 sProcessName = TrimNull(sProcessName)
-                If Left(sProcessName, 1) = "\" Then sProcessName = Mid(sProcessName, 2)
-                If Left(sProcessName, 3) = "??\" Then sProcessName = Mid(sProcessName, 4)
+                If Left$(sProcessName, 1) = "\" Then sProcessName = Mid$(sProcessName, 2)
+                If Left$(sProcessName, 3) = "??\" Then sProcessName = Mid$(sProcessName, 4)
                 If InStr(1, sProcessName, "%SYSTEMROOT%", vbTextCompare) > 0 Then sProcessName = Replace(sProcessName, "Systemroot", sWinDir, , , vbTextCompare)
                 If InStr(1, sProcessName, "SYSTEMROOT", vbTextCompare) > 0 Then sProcessName = Replace(sProcessName, "Systemroot", sWinDir, , , vbTextCompare)
                 
@@ -1464,7 +1464,7 @@ EndOfSub:
         'sVerbose = sVerbose & "and EM_EXEC.EXE." & vbCrLf
         sReport = sReport & vbCrLf & sVerbose
     End If
-    sReport = sReport & vbCrLf & String(50, "-") & vbCrLf & vbCrLf
+    sReport = sReport & vbCrLf & String$(50, "-") & vbCrLf & vbCrLf
     Exit Sub
     
 Error:
@@ -1541,7 +1541,7 @@ Private Sub CheckWinNTUserInit()
 EndOfSub:
     If sResult <> "" And sResult <> sResult & sVerbose & vbCrLf & vbCrLf Then
         sReport = sReport & "[tag3]Checking Windows NT UserInit:[/tag3]" & vbCrLf & vbCrLf
-        sReport = sReport & sResult & String(50, "-") & vbCrLf & vbCrLf
+        sReport = sReport & sResult & String$(50, "-") & vbCrLf & vbCrLf
     End If
     Exit Sub
     
@@ -1585,7 +1585,7 @@ Private Sub CheckSuperHiddenExt()
                               "the difference between a file and" & vbCrLf & "a shortcut is invisible." & vbCrLf
         sReport = sReport & vbCrLf & sVerbose
     End If
-    sReport = sReport & vbCrLf & String(50, "-") & vbCrLf
+    sReport = sReport & vbCrLf & String$(50, "-") & vbCrLf
     Exit Sub
     
 Error:
@@ -1616,7 +1616,7 @@ Private Sub CheckRegedit()
     'If LCase(sCmd) = "regedit.exe ""%1""" Or _
     '   LCase(sCmd) = LCase(sRegedit) & """%1""" Or _
     '   LCase(sCmd) = "%systemroot%\regedit.exe ""%1""" Then
-    If Left(LCase(sCmd), 11) = "regedit.exe" And _
+    If Left(LCase$(sCmd), 11) = "regedit.exe" And _
        InStr(1, sCmd, "%1", vbTextCompare) > 0 Then
         sResult = sResult & "- .reg open command is normal (" & sCmd & ")" & vbCrLf
     Else
@@ -1644,10 +1644,10 @@ Private Sub CheckRegedit()
             
             'convert to readable hex string
             CopyMemory uCodePage(0), ByVal hData, 4
-            sCodePage = Format(Hex(uCodePage(1)), "00") & _
-                        Format(Hex(uCodePage(0)), "00") & _
-                        Format(Hex(uCodePage(3)), "00") & _
-                        Format(Hex(uCodePage(2)), "00")
+            sCodePage = Format(Hex$(uCodePage(1)), "00") & _
+                        Format(Hex$(uCodePage(0)), "00") & _
+                        Format(Hex$(uCodePage(3)), "00") & _
+                        Format(Hex$(uCodePage(2)), "00")
             
             'get CompanyName string
             'should be 'Microsoft Corporation'
@@ -1655,7 +1655,7 @@ Private Sub CheckRegedit()
                 bInteresting = True
                 sResult = sResult & "- Regedit.exe has no CompanyName property! It is either missing or named something else." & vbCrLf
             Else
-                sCompanyName = String(lDataLen, 0)
+                sCompanyName = String$(lDataLen, 0)
                 lstrcpy sCompanyName, hData
                 sCompanyName = TrimNull(sCompanyName)
                 If sCompanyName = "Microsoft Corporation" Then
@@ -1672,7 +1672,7 @@ Private Sub CheckRegedit()
                 bInteresting = True
                 sResult = sResult & "- Regedit.exe has no OriginalFilename property! It is either missing or named something else." & vbCrLf
             Else
-                sOriginalFilename = String(lDataLen, 0)
+                sOriginalFilename = String$(lDataLen, 0)
                 lstrcpy sOriginalFilename, hData
                 sOriginalFilename = TrimNull(sOriginalFilename)
                 If sOriginalFilename = "REGEDIT.EXE" Then
@@ -1688,7 +1688,7 @@ Private Sub CheckRegedit()
                 bInteresting = True
                 sResult = sResult & "- Regedit.exe has no FileDescription property! It is either missing or named something else." & vbCrLf
             Else
-                sFileDescription = String(lDataLen, 0)
+                sFileDescription = String$(lDataLen, 0)
                 lstrcpy sFileDescription, hData
                 sFileDescription = TrimNull(sFileDescription)
                 sResult = sResult & "- File description: '" & sFileDescription & "'" & vbCrLf
@@ -1718,7 +1718,7 @@ Private Sub CheckRegedit()
     End If
     
     If bInteresting Or bComplete Then
-        sReport = sReport & vbCrLf & sResult & vbCrLf & String(50, "-") & vbCrLf
+        sReport = sReport & vbCrLf & sResult & vbCrLf & String$(50, "-") & vbCrLf
     End If
     Exit Sub
     
@@ -1734,7 +1734,7 @@ Private Sub EnumBHOs()
     sResult = "[tag47]Enumerating Browser Helper Objects:[/tag47]" & vbCrLf & vbCrLf
     
     If RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\explorer\Browser Helper Objects", 0, KEY_ENUMERATE_SUB_KEYS, hKey) = 0 Then
-        sCLSID = String(255, 0)
+        sCLSID = String$(255, 0)
         If RegEnumKey(hKey, i, sCLSID, 255) <> 0 Then
             'no BHO's
             RegCloseKey hKey
@@ -1754,8 +1754,8 @@ Private Sub EnumBHOs()
             'check for BHODemon-disabled BHO's
             bDisabledBHODemon = False
             If Len(sFile) > 18 Then
-                If Right(sFile, 18) = "__BHODemonDisabled" Then
-                    sFile = Left(sFile, Len(sFile) - 18)
+                If Right$(sFile, 18) = "__BHODemonDisabled" Then
+                    sFile = Left$(sFile, Len(sFile) - 18)
                     bDisabledBHODemon = True
                 End If
             End If
@@ -1767,7 +1767,7 @@ Private Sub EnumBHOs()
                       " - " & sCLSID & vbCrLf
             
             i = i + 1
-            sCLSID = String(255, 0)
+            sCLSID = String$(255, 0)
         Loop Until RegEnumKey(hKey, i, sCLSID, 255) <> 0
         RegCloseKey hKey
     Else
@@ -1788,7 +1788,7 @@ EndOfSub:
     End If
     
     If bInteresting Or bComplete Then
-        sReport = sReport & vbCrLf & sResult & vbCrLf & String(50, "-") & vbCrLf
+        sReport = sReport & vbCrLf & sResult & vbCrLf & String$(50, "-") & vbCrLf
     End If
     Exit Sub
     
@@ -1801,7 +1801,7 @@ Private Sub EnumJOBs()
     '37
     On Error GoTo Error:
     Dim sResult$, bInteresting As Boolean, sFile$
-    Dim sDummy$, vDummy As Variant, sBla, i&
+    Dim sDummy$, sBla As String, i&
     sResult = "[tag48]Enumerating Task Scheduler jobs:[/tag48]" & vbCrLf & vbCrLf
     If Dir(sWinDir & "\Tasks\NUL") = vbNullString Then
         sResult = sResult & "*" & sWinDir & "\Tasks folder not found*" & vbCrLf
@@ -1831,7 +1831,7 @@ EndOfSub:
     End If
     
     If bInteresting Or bComplete Then
-        sReport = sReport & vbCrLf & sResult & vbCrLf & String(50, "-") & vbCrLf
+        sReport = sReport & vbCrLf & sResult & vbCrLf & String$(50, "-") & vbCrLf
     End If
     Exit Sub
     
@@ -1852,7 +1852,7 @@ Private Sub EnumDPF()
         Exit Sub
     End If
     
-    sName = String(255, 0)
+    sName = String$(255, 0)
     If RegEnumKey(hKey, i, sName, 255) <> 0 Then
         sResult = sResult & "*No subkeys found*" & vbCrLf
         Exit Sub
@@ -1860,7 +1860,7 @@ Private Sub EnumDPF()
     
     Do
         sName = TrimNull(sName)
-        If Left(sName, 1) = "{" And Right(sName, 1) = "}" Then
+        If Left$(sName, 1) = "{" And Right$(sName, 1) = "}" Then
             'it's a CLSID, so get real name from HKCR\CLSID
             sFriendlyName = RegGetString(HKEY_CLASSES_ROOT, "CLSID\" & sName, "")
             sFile = RegGetString(HKEY_CLASSES_ROOT, "CLSID\" & sName & "\InProcServer32", "")
@@ -1891,7 +1891,7 @@ Private Sub EnumDPF()
             End If
         End If
         i = i + 1
-        sName = String(255, 0)
+        sName = String$(255, 0)
         sFriendlyName = ""
     Loop Until RegEnumKey(hKey, i, sName, 255) <> 0
     RegCloseKey hKey
@@ -1908,7 +1908,7 @@ Private Sub EnumDPF()
     
     If (bInteresting Or bComplete) And _
        sResult <> "[tag38]Enumerating Download Program Files:[/tag38]" & vbCrLf & vbCrLf Then
-        sReport = sReport & vbCrLf & sResult & String(50, "-") & vbCrLf
+        sReport = sReport & vbCrLf & sResult & String$(50, "-") & vbCrLf
     End If
     Exit Sub
     
@@ -1958,7 +1958,7 @@ Private Sub EnumLSP()
         If IsRegVal404(sFile) Then
             bInteresting = True
             sResult = sResult & "NameSpace #" & CStr(i) & " is MISSING" & vbCrLf
-        ElseIf InStr(1, sSafeFiles, Mid(sFile, InStrRev(sFile, "\") + 2), vbTextCompare) = 0 Or _
+        ElseIf InStr(1, sSafeFiles, Mid$(sFile, InStrRev(sFile, "\") + 2), vbTextCompare) = 0 Or _
            bComplete Then
             bInteresting = True
             sResult = sResult & "NameSpace #" & CStr(i) & ": " & sFile & IIf(FileExists(sFile) = False, " (file MISSING)", "") & vbCrLf
@@ -1971,7 +1971,7 @@ Private Sub EnumLSP()
         If IsRegVal404(sFile) Then
             bInteresting = True
             sResult = sResult & "Protocol #" & CStr(i) & " is MISSING" & vbCrLf
-        ElseIf InStr(1, sSafeFiles, Mid(sFile, InStrRev(sFile, "\") + 2), vbTextCompare) = 0 Or _
+        ElseIf InStr(1, sSafeFiles, Mid$(sFile, InStrRev(sFile, "\") + 2), vbTextCompare) = 0 Or _
            bComplete = True Then
             bInteresting = True
             sResult = sResult & "Protocol #" & CStr(i) & ": " & sFile & IIf(FileExists(sFile) = False, " (file MISSING)", "") & vbCrLf
@@ -1992,7 +1992,7 @@ Private Sub EnumLSP()
     End If
     
     If bInteresting Or bComplete Then
-        sReport = sReport & vbCrLf & sResult & String(50, "-") & vbCrLf
+        sReport = sReport & vbCrLf & sResult & String$(50, "-") & vbCrLf
     End If
     Exit Sub
     
@@ -2030,7 +2030,7 @@ Private Sub EnumServices()
             GoTo EndOfSub
         End If
         
-        sName = String(255, 0)
+        sName = String$(255, 0)
         If RegEnumKey(hKey, 0, sName, 255) <> 0 Then
             'no subkeys
             sResult = sResult & "*No services found*" & vbCrLf
@@ -2078,7 +2078,7 @@ Private Sub EnumServices()
             RegCloseKey hKey2
             
             i = i + 1
-            sName = String(255, 0)
+            sName = String$(255, 0)
         Loop Until RegEnumKey(hKey, i, sName, 255) <> 0
         RegCloseKey hKey
         If Not bInteresting Then sResult = sResult & "*No services found*" & vbCrLf
@@ -2094,7 +2094,7 @@ Private Sub EnumServices()
             GoTo EndOfSub
         End If
     
-        sName = String(255, 0)
+        sName = String$(255, 0)
         If RegEnumKey(hKey, 0, sName, 255) <> 0 Then
             'no subkeys
             sResult = sResult & "*No services found*" & vbCrLf
@@ -2119,7 +2119,7 @@ Private Sub EnumServices()
             RegCloseKey hKey2
         
             i = i + 1
-            sName = String(255, 0)
+            sName = String$(255, 0)
         Loop Until RegEnumKey(hKey, i, sName, 255) <> 0
         RegCloseKey hKey
         
@@ -2141,7 +2141,7 @@ EndOfSub:
         sResult = sResult & sVerbose '& vbCrLf
     End If
     
-    sResult = vbCrLf & sResult & vbCrLf & String(50, "-") & vbCrLf
+    sResult = vbCrLf & sResult & vbCrLf & String$(50, "-") & vbCrLf
     If bInteresting Or bComplete Then sReport = sReport & sResult
     Exit Sub
     
@@ -2158,7 +2158,7 @@ Private Sub EnumNTScripts()
         If Not (bForceAll Or bForceWinNT) Then Exit Sub
     End If
     
-    Dim sDummy$, sPath$, vPaths As Variant, i%
+    Dim sDummy$, sPath$, vPaths() As String, i%
     Dim sResult$, bInteresting As Boolean
     On Error GoTo Error:
     sResult = "[tag52]Enumerating Windows NT logon/logoff scripts:[/tag52]" & vbCrLf '& vbCrLf
@@ -2259,7 +2259,7 @@ NextCheck:
         sResult = sResult & sVerbose & vbCrLf
     End If
 
-    sResult = vbCrLf & sResult & String(50, "-") & vbCrLf
+    sResult = vbCrLf & sResult & String$(50, "-") & vbCrLf
     If bInteresting Or bComplete Then sReport = sReport & sResult
     Exit Sub
     
@@ -2283,8 +2283,8 @@ Private Sub EnumSSODelayLoad()
         GoTo EndOfSub
     End If
     
-    sName = String(lEnumBufSize, 0)
-    sCLSID = String(lEnumBufSize, 0)
+    sName = String$(lEnumBufSize, 0)
+    sCLSID = String$(lEnumBufSize, 0)
     If RegEnumValue(hKey, 0, sName, Len(sName), 0, ByVal 0, ByVal sCLSID, Len(sCLSID)) <> 0 Then
         'no values!
         RegCloseKey hKey
@@ -2301,8 +2301,8 @@ Private Sub EnumSSODelayLoad()
         
         sResult = sResult & sName & ": " & sFile & vbCrLf
         
-        sName = String(lEnumBufSize, 0)
-        sCLSID = String(lEnumBufSize, 0)
+        sName = String$(lEnumBufSize, 0)
+        sCLSID = String$(lEnumBufSize, 0)
         i = i + 1
     Loop Until RegEnumValue(hKey, i, sName, Len(sName), 0, ByVal 0, ByVal sCLSID, Len(sCLSID)) <> 0
     RegCloseKey hKey
@@ -2318,7 +2318,7 @@ EndOfSub:
         sResult = sResult & vbCrLf & sVerbose & vbCrLf
     End If
 
-    sResult = vbCrLf & sResult & vbCrLf & String(50, "-") & vbCrLf
+    sResult = vbCrLf & sResult & vbCrLf & String$(50, "-") & vbCrLf
     If bInteresting Or bComplete Then sReport = sReport & sResult
     
     Exit Sub
@@ -2377,19 +2377,19 @@ Public Function GetWindowsVersion$()
     Dim OVI As OSVERSIONINFO, sCSD$, sWinVer$, bla$
     On Error GoTo Error:
     
-    OVI.szCSDVersion = String(128, 0)
+    OVI.szCSDVersion = String$(128, 0)
     OVI.dwOSVersionInfoSize = Len(OVI)
     GetVersionEx OVI
     
     With OVI
         If .szCSDVersion <> "" Then
             sCSD = .szCSDVersion
-            If InStr(sCSD, Chr(0)) > 0 Then sCSD = Left(sCSD, InStr(sCSD, Chr(0)) - 1)
+            If InStr(sCSD, Chr(0)) > 0 Then sCSD = Left$(sCSD, InStr(sCSD, Chr(0)) - 1)
             sCSD = Replace(sCSD, "ServicePack ", "SP", 1, 1, vbTextCompare)
             sCSD = Replace(sCSD, "Service Pack ", "SP", 1, 1, vbTextCompare)
             sCSD = Replace(sCSD, "ServicePack", "SP", 1, 1, vbTextCompare)
             sCSD = Replace(sCSD, "Service Pack", "SP", 1, 1, vbTextCompare)
-            sCSD = Trim(sCSD)
+            sCSD = Trim$(sCSD)
         End If
         Select Case .dwPlatformId
             Case 0: GetWindowsVersion = "Detected: Windows 3.x running Win32s": Exit Function
@@ -2549,7 +2549,7 @@ Public Function GetMSIEVersion$()
     End With
     If sMSIEVer = "0.00.0000.0000" Then GoTo EndOfFun:
     
-    sMSIEFriendlyVer = Left(sMSIEVer, 4)
+    sMSIEFriendlyVer = Left$(sMSIEVer, 4)
     
     sMSIEHotfixes = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\Internet Settings", "MinorVersion")
     If sMSIEHotfixes = vbNullString Then GoTo EndOfFun:
@@ -2575,7 +2575,7 @@ Public Function GetMSIEVersion$()
     End If
     
 EndOfFun:
-    If lDataLen > 0 And Left(sMSIEFriendlyVer, 1) <> "0" Then
+    If lDataLen > 0 And Left$(sMSIEFriendlyVer, 1) <> "0" Then
         GetMSIEVersion = "Internet Explorer v" & sMSIEFriendlyVer & " (" & sMSIEVer & ")"
     Else
         GetMSIEVersion = "Unable to get Internet Explorer version!"
@@ -2618,12 +2618,12 @@ Public Function GetLongPath$(sFile$)
     End If
     
     'check if file is self
-    If LCase(sFile) = LCase(App.EXEName & ".exe") Then
-        GetLongPath = App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & sFile
+    If LCase$(sFile) = LCase$(App.EXEName & ".exe") Then
+        GetLongPath = App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & sFile
         Exit Function
     End If
     
-    Dim hKey, sData$, i%, sDummy$, sProgramFiles$
+    Dim sData$, i%, sDummy$, sProgramFiles$
     'check App Paths regkey
     sData = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion\App Paths\" & sFile, "")
     If Not IsRegVal404(sData) And sData <> vbNullString Then
@@ -2632,8 +2632,8 @@ Public Function GetLongPath$(sFile$)
     End If
     
     'check own folder
-    If Dir(App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & sFile, vbArchive + vbHidden + vbReadOnly + vbSystem) <> "" Then
-        GetLongPath = App.Path & IIf(Right(App.Path, 1) = "\", "", "\") & sFile
+    If Dir(App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & sFile, vbArchive + vbHidden + vbReadOnly + vbSystem) <> "" Then
+        GetLongPath = App.Path & IIf(Right$(App.Path, 1) = "\", "", "\") & sFile
         Exit Function
     End If
     
@@ -2657,7 +2657,7 @@ Public Function GetLongPath$(sFile$)
     
     If InStr(sFile, ".") > 0 Then
         'prog.exe -> prog
-        sDummy = Left(sFile, InStr(sFile, ".") - 1)
+        sDummy = Left$(sFile, InStr(sFile, ".") - 1)
         sProgramFiles = RegGetString(HKEY_LOCAL_MACHINE, "Software\Microsoft\Windows\CurrentVersion", "ProgramFilesDir")
         
         'check x:\program files\prog\prog.exe
@@ -2692,10 +2692,10 @@ Public Function GetLongPath$(sFile$)
             Exit Function
         End If
         
-        If Right(sDummy, 2) = "32" Or Right(sDummy, 2) = "16" Then
+        If Right$(sDummy, 2) = "32" Or Right$(sDummy, 2) = "16" Then
             'asssuming sFile is prog32.exe,
             'check x:\program files\prog\prog32.exe
-            sDummy = Left(sDummy, Len(sDummy) - 2)
+            sDummy = Left$(sDummy, Len(sDummy) - 2)
             If Dir(sProgramFiles & "\" & sDummy & "\" & sFile, vbArchive + vbHidden + vbReadOnly + vbSystem) <> vbNullString Then
                 GetLongPath = sProgramFiles & "\" & sDummy & "\" & sFile
                 Exit Function
@@ -2714,15 +2714,14 @@ Public Function GetLongPath$(sFile$)
     Exit Function
     
 Error:
-    RegCloseKey hKey
     ErrorMsg Err.Number, Err.Description, "GetLongPath", sFile
 End Function
 
 Public Function GetFileFromShortCut$(ByVal sLink$)
-    Dim sLnk$, vLnk As Variant, i&, sFile$
+    Dim sLnk$, vLnk() As String, i&, sFile$
     On Error Resume Next
-    If Right(LCase(sLink), 4) <> ".lnk" And _
-       Right(LCase(sLink), 4) <> ".pif" Then Exit Function
+    If Right$(LCase$(sLink), 4) <> ".lnk" And _
+       Right$(LCase$(sLink), 4) <> ".pif" Then Exit Function
     Open sLink For Input As #1
     Close #1
     If Err Then Exit Function
@@ -2753,7 +2752,7 @@ Public Function GetFileFromShortCut$(ByVal sLink$)
     
     'sometimes the path to the icon file is found when
     'the actual file path is not
-    If Right(LCase(sFile), 4) = ".ico" Then sFile = ""
+    If Right$(LCase$(sFile), 4) = ".ico" Then sFile = ""
     
     If sFile = vbNullString Then
         'try alternate method, where drive and path have
@@ -2781,10 +2780,10 @@ Public Function GetFileFromShortCut$(ByVal sLink$)
     
     'sometimes the path to the icon file is found when
     'the actual file path is not
-    If Right(LCase(sFile), 4) = ".ico" Then sFile = ""
+    If Right$(LCase$(sFile), 4) = ".ico" Then sFile = ""
     
     'check for period at the right position
-    If Left(Right(sFile, 4), 1) <> "." Then sFile = ""
+    If Left$(Right$(sFile, 4), 1) <> "." Then sFile = ""
     
     If sFile <> vbNullString Then
         GetFileFromShortCut = " = " & sFile
@@ -2804,7 +2803,7 @@ Public Function StringIsAlphaNumeric(s$) As Boolean
     
     StringIsAlphaNumeric = True
     For i = 1 To Len(s)
-        Select Case Asc(Mid(s, i, 1))
+        Select Case Asc(Mid$(s, i, 1))
             'Case 48 To 57 ' 0 - 9
             'Case 65 To 90 ' A - Z
             'Case 97 To 122 'a - z
@@ -2830,14 +2829,14 @@ Private Function TrimNull$(s$, Optional bFullTrim As Boolean = False)
         Exit Function
     End If
     If bFullTrim Then
-        Do Until Left(s, 1) <> Chr(0)
-            s = Mid(s, 2)
+        Do Until Left$(s, 1) <> Chr(0)
+            s = Mid$(s, 2)
         Loop
-        Do Until Right(s, 1) <> Chr(0)
-            s = Left(s, Len(s) - 1)
+        Do Until Right$(s, 1) <> Chr(0)
+            s = Left$(s, Len(s) - 1)
         Loop
     Else
-        s = Left(s, InStr(s, Chr(0)) - 1)
+        s = Left$(s, InStr(s, Chr(0)) - 1)
     End If
     TrimNull = s
     Exit Function
@@ -2850,7 +2849,7 @@ Private Function RegGetString$(lHive&, sKey$, sVal$)
     Dim hKey&, sData$
     On Error GoTo Error:
     If RegOpenKeyEx(lHive, sKey, 0, KEY_QUERY_VALUE, hKey) = 0 Then
-        sData = String(255, 0)
+        sData = String$(255, 0)
         If RegQueryValueEx(hKey, sVal, 0, REG_SZ, ByVal sData, 255) = 0 Then
             RegGetString = TrimNull(sData)
         Else
@@ -2863,7 +2862,7 @@ Private Function RegGetString$(lHive&, sKey$, sVal$)
     Exit Function
     
 Error:
-    Dim sRoot
+    Dim sRoot As String
     RegCloseKey hKey
     Select Case lHive
         Case HKEY_CURRENT_USER: sRoot = "HKCU"
@@ -2897,7 +2896,7 @@ Private Function RegValueExists(lHive&, sKey$, sValue$) As Boolean
     On Error GoTo Error:
     
     If RegOpenKeyEx(lHive, sKey, 0, KEY_QUERY_VALUE, hKey) = 0 Then
-        sData = String(255, 0)
+        sData = String$(255, 0)
         If RegQueryValueEx(hKey, sValue, 0, ByVal 0, ByVal sData, 255) = 0 Then
             RegValueExists = True
         Else
@@ -2992,8 +2991,8 @@ Private Function IniGetString$(sFile$, sSection$, sValue$, bNT As Boolean)
         Open sIniFile For Input As #1
             Do
                 Line Input #1, sLine
-            Loop Until EOF(1) Or LCase(sLine) = LCase("[" & sSection & "]")
-            If EOF(1) Or LCase(sLine) <> LCase("[" & sSection & "]") Then
+            Loop Until EOF(1) Or LCase$(sLine) = LCase$("[" & sSection & "]")
+            If EOF(1) Or LCase$(sLine) <> LCase$("[" & sSection & "]") Then
                 IniGetString = "*INI section not found*"
                 Close #1
                 Exit Function
@@ -3002,9 +3001,9 @@ Private Function IniGetString$(sFile$, sSection$, sValue$, bNT As Boolean)
             Do
                 Line Input #1, sLine
                 If Len(sLine) > Len(sValue) Then
-                    If LCase(Left(sLine, Len(sValue))) = LCase(sValue) Then
+                    If LCase$(Left$(sLine, Len(sValue))) = LCase$(sValue) Then
                         'found the setting=
-                        IniGetString = Mid(sLine, Len(sValue) + 2)
+                        IniGetString = Mid$(sLine, Len(sValue) + 2)
                         Exit Do
                     End If
                 End If
@@ -3023,17 +3022,17 @@ Private Function IniGetString$(sFile$, sSection$, sValue$, bNT As Boolean)
                 Exit Function
             End If
         End If
-        If Left(sDummy, 1) = "!" Then sDummy = Mid(sDummy, 2)
-        If Left(sDummy, 1) = "#" Then sDummy = Mid(sDummy, 2)
+        If Left$(sDummy, 1) = "!" Then sDummy = Mid$(sDummy, 2)
+        If Left$(sDummy, 1) = "#" Then sDummy = Mid$(sDummy, 2)
         
         'get actual setting
-        Select Case Left(sDummy, 3)
+        Select Case Left$(sDummy, 3)
             Case "USR"
-                sDummy = RegGetString(HKEY_CURRENT_USER, Mid(sDummy, 5), sValue)
-                sRet = "[HKCU\" & Mid(sDummy, 5) & "]"
+                sDummy = RegGetString(HKEY_CURRENT_USER, Mid$(sDummy, 5), sValue)
+                sRet = "[HKCU\" & Mid$(sDummy, 5) & "]"
             Case "SYS"
-                sDummy = RegGetString(HKEY_LOCAL_MACHINE, Mid(sDummy, 5), sValue)
-                sRet = "[HKLM\" & Mid(sDummy, 5) & "]"
+                sDummy = RegGetString(HKEY_LOCAL_MACHINE, Mid$(sDummy, 5), sValue)
+                sRet = "[HKLM\" & Mid$(sDummy, 5) & "]"
             Case Else
                 IniGetString = ""
                 Exit Function
@@ -3058,7 +3057,7 @@ Private Sub HTMLize()
         sReport = Replace(sReport, ">", "&gt;")
         
         'replace -- and == bars with <HR> bars
-        sReport = Replace(sReport, String(50, "-"), "<CENTER><HR WIDTH=""80%""></CENTER>")
+        sReport = Replace(sReport, String$(50, "-"), "<CENTER><HR WIDTH=""80%""></CENTER>")
         
         'expand [tag]s
         sSections = ""
@@ -3096,76 +3095,76 @@ Private Sub HTMLize()
                 "</HEAD>" & vbCrLf & _
                 "<BODY><PRE><FONT FACE=""Fixedsys"">"
                 sIndex = "</FONT></PRE><BLOCKQUOTE>Sections:<BLOCKQUOTE>" & vbCrLf
-        If Mid(sSections, 1, 1) = "1" Then sIndex = sIndex & "<A HREF=""#1"">Running processes</A><BR>" & vbCrLf
-        If Mid(sSections, 2, 1) = "1" Then sIndex = sIndex & "<A HREF=""#2"">Autostart folders</A><BR>" & vbCrLf
-        If Mid(sSections, 3, 1) = "1" Then sIndex = sIndex & "<A HREF=""#3"">Windows NT UserInit</A><BR>" & vbCrLf
-        If Mid(sSections, 4, 1) = "1" Then sIndex = sIndex & "<A HREF=""#4"">Autorun key HKLM\..\Run</A><BR>" & vbCrLf
-        If Mid(sSections, 5, 1) = "1" Then sIndex = sIndex & "<A HREF=""#5"">Autorun key HKLM\..\RunOnce</A><BR>" & vbCrLf
-        If Mid(sSections, 6, 1) = "1" Then sIndex = sIndex & "<A HREF=""#6"">Autorun key HKLM\..\RunOnceEx</A><BR>" & vbCrLf
-        If Mid(sSections, 7, 1) = "1" Then sIndex = sIndex & "<A HREF=""#7"">Autorun key HKLM\..\RunServices</A><BR>" & vbCrLf
-        If Mid(sSections, 8, 1) = "1" Then sIndex = sIndex & "<A HREF=""#8"">Autorun key HKLM\..\RunServicesOnce</A><BR>" & vbCrLf
-        If Mid(sSections, 9, 1) = "1" Then sIndex = sIndex & "<A HREF=""#9"">Autorun key HKCU\..\Run</A><BR>" & vbCrLf
-        If Mid(sSections, 10, 1) = "1" Then sIndex = sIndex & "<A HREF=""#10"">Autorun key HKCU\..\RunOnce</A><BR>" & vbCrLf
-        If Mid(sSections, 11, 1) = "1" Then sIndex = sIndex & "<A HREF=""#11"">Autorun key HKCU\..\RunOnceEx</A><BR>" & vbCrLf
-        If Mid(sSections, 12, 1) = "1" Then sIndex = sIndex & "<A HREF=""#12"">Autorun key HKCU\..\RunServices</A><BR>" & vbCrLf
-        If Mid(sSections, 13, 1) = "1" Then sIndex = sIndex & "<A HREF=""#13"">Autorun key HKCU\..\RunServicesOnce</A><BR>" & vbCrLf
-        If Mid(sSections, 14, 1) = "1" Then sIndex = sIndex & "<A HREF=""#14"">Autorun key HKLM\..\Run (NT)</A><BR>" & vbCrLf
-        If Mid(sSections, 15, 1) = "1" Then sIndex = sIndex & "<A HREF=""#15"">Autorun key HKCU\..\Run (NT)</A><BR>" & vbCrLf
-        If Mid(sSections, 16, 1) = "1" Then sIndex = sIndex & "<A HREF=""#16"">Autorun subkeys HKLM\..\Run\*</A><BR>" & vbCrLf
-        If Mid(sSections, 17, 1) = "1" Then sIndex = sIndex & "<A HREF=""#17"">Autorun subkeys HKLM\..\RunOnce\*</A><BR>" & vbCrLf
-        If Mid(sSections, 18, 1) = "1" Then sIndex = sIndex & "<A HREF=""#18"">Autorun subkeys HKLM\..\RunOnceEx\*</A><BR>" & vbCrLf
-        If Mid(sSections, 19, 1) = "1" Then sIndex = sIndex & "<A HREF=""#19"">Autorun subkeys HKLM\..\RunServices\*</A><BR>" & vbCrLf
-        If Mid(sSections, 20, 1) = "1" Then sIndex = sIndex & "<A HREF=""#20"">Autorun subkeys HKLM\..\RunServicesOnce\*</A><BR>" & vbCrLf
-        If Mid(sSections, 21, 1) = "1" Then sIndex = sIndex & "<A HREF=""#21"">Autorun subkeys HKCU\..\Run\*</A><BR>" & vbCrLf
-        If Mid(sSections, 22, 1) = "1" Then sIndex = sIndex & "<A HREF=""#22"">Autorun subkeys HKCU\..\RunOnce\*</A><BR>" & vbCrLf
-        If Mid(sSections, 23, 1) = "1" Then sIndex = sIndex & "<A HREF=""#23"">Autorun subkeys HKCU\..\RunOnceEx\*</A><BR>" & vbCrLf
-        If Mid(sSections, 24, 1) = "1" Then sIndex = sIndex & "<A HREF=""#24"">Autorun subkeys HKCU\..\RunServices\*</A><BR>" & vbCrLf
-        If Mid(sSections, 25, 1) = "1" Then sIndex = sIndex & "<A HREF=""#25"">Autorun subkeys HKCU\..\RunServicesOnce\*</A><BR>" & vbCrLf
-        If Mid(sSections, 26, 1) = "1" Then sIndex = sIndex & "<A HREF=""#26"">Autorun subkeys HKLM\..\Run\* (NT)</A><BR>" & vbCrLf
-        If Mid(sSections, 27, 1) = "1" Then sIndex = sIndex & "<A HREF=""#27"">Autorun subkeys HKCU\..\Run\* (NT)</A><BR>" & vbCrLf
-        If Mid(sSections, 28, 1) = "1" Then sIndex = sIndex & "<A HREF=""#28"">Class .EXE</A><BR>" & vbCrLf
-        If Mid(sSections, 29, 1) = "1" Then sIndex = sIndex & "<A HREF=""#29"">Class .COM</A><BR>" & vbCrLf
-        If Mid(sSections, 30, 1) = "1" Then sIndex = sIndex & "<A HREF=""#30"">Class .BAT</A><BR>" & vbCrLf
-        If Mid(sSections, 31, 1) = "1" Then sIndex = sIndex & "<A HREF=""#31"">Class .PIF</A><BR>" & vbCrLf
-        If Mid(sSections, 32, 1) = "1" Then sIndex = sIndex & "<A HREF=""#32"">Class .SCR</A><BR>" & vbCrLf
-        If Mid(sSections, 33, 1) = "1" Then sIndex = sIndex & "<A HREF=""#33"">Class .HTA</A><BR>" & vbCrLf
-        If Mid(sSections, 34, 1) = "1" Then sIndex = sIndex & "<A HREF=""#34"">Class .TXT</A><BR>" & vbCrLf
+        If Mid$(sSections, 1, 1) = "1" Then sIndex = sIndex & "<A HREF=""#1"">Running processes</A><BR>" & vbCrLf
+        If Mid$(sSections, 2, 1) = "1" Then sIndex = sIndex & "<A HREF=""#2"">Autostart folders</A><BR>" & vbCrLf
+        If Mid$(sSections, 3, 1) = "1" Then sIndex = sIndex & "<A HREF=""#3"">Windows NT UserInit</A><BR>" & vbCrLf
+        If Mid$(sSections, 4, 1) = "1" Then sIndex = sIndex & "<A HREF=""#4"">Autorun key HKLM\..\Run</A><BR>" & vbCrLf
+        If Mid$(sSections, 5, 1) = "1" Then sIndex = sIndex & "<A HREF=""#5"">Autorun key HKLM\..\RunOnce</A><BR>" & vbCrLf
+        If Mid$(sSections, 6, 1) = "1" Then sIndex = sIndex & "<A HREF=""#6"">Autorun key HKLM\..\RunOnceEx</A><BR>" & vbCrLf
+        If Mid$(sSections, 7, 1) = "1" Then sIndex = sIndex & "<A HREF=""#7"">Autorun key HKLM\..\RunServices</A><BR>" & vbCrLf
+        If Mid$(sSections, 8, 1) = "1" Then sIndex = sIndex & "<A HREF=""#8"">Autorun key HKLM\..\RunServicesOnce</A><BR>" & vbCrLf
+        If Mid$(sSections, 9, 1) = "1" Then sIndex = sIndex & "<A HREF=""#9"">Autorun key HKCU\..\Run</A><BR>" & vbCrLf
+        If Mid$(sSections, 10, 1) = "1" Then sIndex = sIndex & "<A HREF=""#10"">Autorun key HKCU\..\RunOnce</A><BR>" & vbCrLf
+        If Mid$(sSections, 11, 1) = "1" Then sIndex = sIndex & "<A HREF=""#11"">Autorun key HKCU\..\RunOnceEx</A><BR>" & vbCrLf
+        If Mid$(sSections, 12, 1) = "1" Then sIndex = sIndex & "<A HREF=""#12"">Autorun key HKCU\..\RunServices</A><BR>" & vbCrLf
+        If Mid$(sSections, 13, 1) = "1" Then sIndex = sIndex & "<A HREF=""#13"">Autorun key HKCU\..\RunServicesOnce</A><BR>" & vbCrLf
+        If Mid$(sSections, 14, 1) = "1" Then sIndex = sIndex & "<A HREF=""#14"">Autorun key HKLM\..\Run (NT)</A><BR>" & vbCrLf
+        If Mid$(sSections, 15, 1) = "1" Then sIndex = sIndex & "<A HREF=""#15"">Autorun key HKCU\..\Run (NT)</A><BR>" & vbCrLf
+        If Mid$(sSections, 16, 1) = "1" Then sIndex = sIndex & "<A HREF=""#16"">Autorun subkeys HKLM\..\Run\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 17, 1) = "1" Then sIndex = sIndex & "<A HREF=""#17"">Autorun subkeys HKLM\..\RunOnce\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 18, 1) = "1" Then sIndex = sIndex & "<A HREF=""#18"">Autorun subkeys HKLM\..\RunOnceEx\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 19, 1) = "1" Then sIndex = sIndex & "<A HREF=""#19"">Autorun subkeys HKLM\..\RunServices\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 20, 1) = "1" Then sIndex = sIndex & "<A HREF=""#20"">Autorun subkeys HKLM\..\RunServicesOnce\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 21, 1) = "1" Then sIndex = sIndex & "<A HREF=""#21"">Autorun subkeys HKCU\..\Run\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 22, 1) = "1" Then sIndex = sIndex & "<A HREF=""#22"">Autorun subkeys HKCU\..\RunOnce\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 23, 1) = "1" Then sIndex = sIndex & "<A HREF=""#23"">Autorun subkeys HKCU\..\RunOnceEx\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 24, 1) = "1" Then sIndex = sIndex & "<A HREF=""#24"">Autorun subkeys HKCU\..\RunServices\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 25, 1) = "1" Then sIndex = sIndex & "<A HREF=""#25"">Autorun subkeys HKCU\..\RunServicesOnce\*</A><BR>" & vbCrLf
+        If Mid$(sSections, 26, 1) = "1" Then sIndex = sIndex & "<A HREF=""#26"">Autorun subkeys HKLM\..\Run\* (NT)</A><BR>" & vbCrLf
+        If Mid$(sSections, 27, 1) = "1" Then sIndex = sIndex & "<A HREF=""#27"">Autorun subkeys HKCU\..\Run\* (NT)</A><BR>" & vbCrLf
+        If Mid$(sSections, 28, 1) = "1" Then sIndex = sIndex & "<A HREF=""#28"">Class .EXE</A><BR>" & vbCrLf
+        If Mid$(sSections, 29, 1) = "1" Then sIndex = sIndex & "<A HREF=""#29"">Class .COM</A><BR>" & vbCrLf
+        If Mid$(sSections, 30, 1) = "1" Then sIndex = sIndex & "<A HREF=""#30"">Class .BAT</A><BR>" & vbCrLf
+        If Mid$(sSections, 31, 1) = "1" Then sIndex = sIndex & "<A HREF=""#31"">Class .PIF</A><BR>" & vbCrLf
+        If Mid$(sSections, 32, 1) = "1" Then sIndex = sIndex & "<A HREF=""#32"">Class .SCR</A><BR>" & vbCrLf
+        If Mid$(sSections, 33, 1) = "1" Then sIndex = sIndex & "<A HREF=""#33"">Class .HTA</A><BR>" & vbCrLf
+        If Mid$(sSections, 34, 1) = "1" Then sIndex = sIndex & "<A HREF=""#34"">Class .TXT</A><BR>" & vbCrLf
         
-        If Mid(sSections, 35, 1) = "1" Then sIndex = sIndex & "<A HREF=""#35"">Active Setup Stub Paths</A><BR>" & vbCrLf
-        If Mid(sSections, 36, 1) = "1" Then sIndex = sIndex & "<A HREF=""#36"">ICQ Agent</A><BR>" & vbCrLf
-        If Mid(sSections, 37, 1) = "1" Then sIndex = sIndex & "<A HREF=""#37"">Load/Run keys from WIN.INI</A><BR>" & vbCrLf
-        If Mid(sSections, 38, 1) = "1" Then sIndex = sIndex & "<A HREF=""#38"">Shell/SCRNSAVE.EXE keys from SYSTEM.INI</A><BR>" & vbCrLf
-        If Mid(sSections, 39, 1) = "1" Then sIndex = sIndex & "<A HREF=""#39"">Explorer check</A><BR>" & vbCrLf
-        If Mid(sSections, 40, 1) = "1" Then sIndex = sIndex & "<A HREF=""#40"">Wininit.ini</A><BR>" & vbCrLf
-        If Mid(sSections, 41, 1) = "1" Then sIndex = sIndex & "<A HREF=""#41"">Wininit.bak</A><BR>" & vbCrLf
-        If Mid(sSections, 42, 1) = "1" Then sIndex = sIndex & "<A HREF=""#42"">C:\Autoexec.bat</A><BR>" & vbCrLf
-        If Mid(sSections, 43, 1) = "1" Then sIndex = sIndex & "<A HREF=""#43"">C:\Config.sys</A><BR>" & vbCrLf
-        If Mid(sSections, 44, 1) = "1" Then sIndex = sIndex & "<A HREF=""#44"">" & sWinDir & "\Winstart.bat</A><BR>" & vbCrLf
-        If Mid(sSections, 45, 1) = "1" Then sIndex = sIndex & "<A HREF=""#45"">" & sWinDir & "\Dosstart.bat</A><BR>" & vbCrLf
-        If Mid(sSections, 46, 1) = "1" Then sIndex = sIndex & "<A HREF=""#46"">Superhidden extensions</A><BR>" & vbCrLf
-        If Mid(sSections, 47, 1) = "1" Then sIndex = sIndex & "<A HREF=""#47"">Regedit.exe check</A><BR>" & vbCrLf
-        If Mid(sSections, 48, 1) = "1" Then sIndex = sIndex & "<A HREF=""#48"">BHO list</A><BR>" & vbCrLf
-        If Mid(sSections, 49, 1) = "1" Then sIndex = sIndex & "<A HREF=""#49"">Task Scheduler jobs</A><BR>" & vbCrLf
-        If Mid(sSections, 50, 1) = "1" Then sIndex = sIndex & "<A HREF=""#50"">Download Program Files</A><BR>" & vbCrLf
-        If Mid(sSections, 51, 1) = "1" Then sIndex = sIndex & "<A HREF=""#51"">Winsock LSP files</A><BR>" & vbCrLf
-        If Mid(sSections, 52, 1) = "1" Then sIndex = sIndex & "<A HREF=""#52"">Windows NT Services</A><BR>" & vbCrLf
-        If Mid(sSections, 53, 1) = "1" Then sIndex = sIndex & "<A HREF=""#53"">Windows NT Logon/logoff scripts</A><BR>" & vbCrLf
-        If Mid(sSections, 54, 1) = "1" Then sIndex = sIndex & "<A HREF=""#54"">ShellServiceObjectDelayLoad regkey</A><BR>" & vbCrLf
-        If Mid(sSections, 55, 1) = "1" Then sIndex = sIndex & "<A HREF=""#55"">Policies Explorer Run key (global)</A><BR>" & vbCrLf
-        If Mid(sSections, 56, 1) = "1" Then sIndex = sIndex & "<A HREF=""#56"">Policies Explorer Run key (current user)</A><BR>" & vbCrLf
+        If Mid$(sSections, 35, 1) = "1" Then sIndex = sIndex & "<A HREF=""#35"">Active Setup Stub Paths</A><BR>" & vbCrLf
+        If Mid$(sSections, 36, 1) = "1" Then sIndex = sIndex & "<A HREF=""#36"">ICQ Agent</A><BR>" & vbCrLf
+        If Mid$(sSections, 37, 1) = "1" Then sIndex = sIndex & "<A HREF=""#37"">Load/Run keys from WIN.INI</A><BR>" & vbCrLf
+        If Mid$(sSections, 38, 1) = "1" Then sIndex = sIndex & "<A HREF=""#38"">Shell/SCRNSAVE.EXE keys from SYSTEM.INI</A><BR>" & vbCrLf
+        If Mid$(sSections, 39, 1) = "1" Then sIndex = sIndex & "<A HREF=""#39"">Explorer check</A><BR>" & vbCrLf
+        If Mid$(sSections, 40, 1) = "1" Then sIndex = sIndex & "<A HREF=""#40"">Wininit.ini</A><BR>" & vbCrLf
+        If Mid$(sSections, 41, 1) = "1" Then sIndex = sIndex & "<A HREF=""#41"">Wininit.bak</A><BR>" & vbCrLf
+        If Mid$(sSections, 42, 1) = "1" Then sIndex = sIndex & "<A HREF=""#42"">C:\Autoexec.bat</A><BR>" & vbCrLf
+        If Mid$(sSections, 43, 1) = "1" Then sIndex = sIndex & "<A HREF=""#43"">C:\Config.sys</A><BR>" & vbCrLf
+        If Mid$(sSections, 44, 1) = "1" Then sIndex = sIndex & "<A HREF=""#44"">" & sWinDir & "\Winstart.bat</A><BR>" & vbCrLf
+        If Mid$(sSections, 45, 1) = "1" Then sIndex = sIndex & "<A HREF=""#45"">" & sWinDir & "\Dosstart.bat</A><BR>" & vbCrLf
+        If Mid$(sSections, 46, 1) = "1" Then sIndex = sIndex & "<A HREF=""#46"">Superhidden extensions</A><BR>" & vbCrLf
+        If Mid$(sSections, 47, 1) = "1" Then sIndex = sIndex & "<A HREF=""#47"">Regedit.exe check</A><BR>" & vbCrLf
+        If Mid$(sSections, 48, 1) = "1" Then sIndex = sIndex & "<A HREF=""#48"">BHO list</A><BR>" & vbCrLf
+        If Mid$(sSections, 49, 1) = "1" Then sIndex = sIndex & "<A HREF=""#49"">Task Scheduler jobs</A><BR>" & vbCrLf
+        If Mid$(sSections, 50, 1) = "1" Then sIndex = sIndex & "<A HREF=""#50"">Download Program Files</A><BR>" & vbCrLf
+        If Mid$(sSections, 51, 1) = "1" Then sIndex = sIndex & "<A HREF=""#51"">Winsock LSP files</A><BR>" & vbCrLf
+        If Mid$(sSections, 52, 1) = "1" Then sIndex = sIndex & "<A HREF=""#52"">Windows NT Services</A><BR>" & vbCrLf
+        If Mid$(sSections, 53, 1) = "1" Then sIndex = sIndex & "<A HREF=""#53"">Windows NT Logon/logoff scripts</A><BR>" & vbCrLf
+        If Mid$(sSections, 54, 1) = "1" Then sIndex = sIndex & "<A HREF=""#54"">ShellServiceObjectDelayLoad regkey</A><BR>" & vbCrLf
+        If Mid$(sSections, 55, 1) = "1" Then sIndex = sIndex & "<A HREF=""#55"">Policies Explorer Run key (global)</A><BR>" & vbCrLf
+        If Mid$(sSections, 56, 1) = "1" Then sIndex = sIndex & "<A HREF=""#56"">Policies Explorer Run key (current user)</A><BR>" & vbCrLf
         
-        If Mid(sSections, 57, 1) = "1" Then sIndex = sIndex & "<A HREF=""#55""> </A><BR>" & vbCrLf
+        If Mid$(sSections, 57, 1) = "1" Then sIndex = sIndex & "<A HREF=""#55""> </A><BR>" & vbCrLf
         
         sIndex = sIndex & "</BLOCKQUOTE></BLOCKQUOTE>" & vbCrLf
         'write footer
         sFooter = vbCrLf & vbCrLf & "</FONT></PRE></BODY></HTML>"
         
-        sReport = Replace(sReport, String(50, "="), sIndex & "<CENTER><HR WIDTH=""80%"" SIZE=5""></CENTER>" & "<PRE><FONT FACE=""Fixedsys"">" & vbCrLf & vbCrLf)
+        sReport = Replace(sReport, String$(50, "="), sIndex & "<CENTER><HR WIDTH=""80%"" SIZE=5""></CENTER>" & "<PRE><FONT FACE=""Fixedsys"">" & vbCrLf & vbCrLf)
         sReport = sHeader & sReport & sFooter
     End If
 End Sub
 
 Public Function BuildPath$(sPath$, sFile$)
-    BuildPath = sPath & IIf(Right(sPath, 1) = "\", vbNullString, "\") & sFile
+    BuildPath = sPath & IIf(Right$(sPath, 1) = "\", vbNullString, "\") & sFile
 End Function
 
