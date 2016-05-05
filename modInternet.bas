@@ -76,7 +76,6 @@ End Sub
 Public Sub SendData(szUrl As String, szData As String)
 On Error GoTo Error
 Dim szRequest As String
-'FIXIT: Declare 'xmlhttp' with an early-bound data type                                    FixIT90210ae-R1672-R1B8ZE
 Dim xmlhttp As Object
 Dim dataLen As Integer
 Set xmlhttp = CreateObject("MSXML2.ServerXMLHTTP")
@@ -103,7 +102,6 @@ End Sub
 Function GetUrl(szUrl As String) As String
 On Error GoTo Error:
 Dim szRequest As String
-'FIXIT: Declare 'xmlhttp' with an early-bound data type                                    FixIT90210ae-R1672-R1B8ZE
 Dim xmlhttp As Object
 Dim dataLen As Integer
 Set xmlhttp = CreateObject("MSXML2.ServerXMLHTTP")

@@ -5175,7 +5175,6 @@ Public Sub SetAllFontCharset()
     End With
 End Sub
 
-'FIXIT: Declare 'objTxtboxFont' with an early-bound data type                              FixIT90210ae-R1672-R1B8ZE
 Private Sub SetFontCharSet(objTxtboxFont As Object)
     'A big thanks to 'Gun' and 'Adult', two Japanese users
     'who helped me greatly with this
@@ -5559,7 +5558,6 @@ Public Sub CheckOther4ItemUsers()
 End Sub
 
 Public Function MapSIDToUsername$(sSID$)
-'FIXIT: Declare 'objWMI' and 'objSID' with an early-bound data type                        FixIT90210ae-R1672-R1B8ZE
     Dim objWMI As Object, objSID As Object
     On Error Resume Next
     Set objWMI = GetObject("winmgmts:{impersonationLevel=Impersonate}")
